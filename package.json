@@ -1,0 +1,11 @@
+{
+  "name": "thiccengine",
+  "version": "2.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx serve src/"
+  },
+  "dependencies": {
+    "serve": "^14.2.6"
+  }
+}
