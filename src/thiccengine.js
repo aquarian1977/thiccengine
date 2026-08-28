@@ -9,9 +9,9 @@ class FrameBuffer {
     }
 }
 
-function fill (buffer, colorBytes = [0, 0, 0, 255]) {
+function fill (buffer, colorBytes) {
     for (let i = 0; i < buffer.data.length; i += 1) {
-        buffer.data[i] = colorBytes[i % 4]
+        buffer.data[i] = colorBytes[i % buffer.colorDepth]
     }
 }
 
