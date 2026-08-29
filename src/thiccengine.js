@@ -36,5 +36,14 @@ function drawRect (buffer, x, y, width, height, color) {
     }
 }
 
+function drawScene (buffer, scene, color) {
+    // Ignore zs to effectively 2D project, treat 1 unit as 1 pixel
+    scene.forEach((tri) => {
+        drawPixel(buffer, tri.p1.x, tri.p1.y, color)
+        drawPixel(buffer, tri.p2.x, tri.p2.y, color)
+        drawPixel(buffer, tri.p3.x, tri.p3.y, color)
+    })
+}
+
 export {Color, FrameBuffer}
-export default {drawPixel, drawRect, fill}
+export default {drawScene, drawPixel, drawRect, fill}
