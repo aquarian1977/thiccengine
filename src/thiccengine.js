@@ -21,7 +21,7 @@ function fill (buffer, color) {
 }
 
 function drawPixel (buffer, x, y, color) {
-    if (x >= buffer.width || y >= buffer.height) return
+    if (x < 0 || y < 0 || x >= buffer.width || y >= buffer.height) return
     const bufferIndex = (y * buffer.width * buffer.bytesPerPixel) + (x * buffer.bytesPerPixel)
     for(let i = 0; i < buffer.bytesPerPixel; i += 1) {
         buffer.data[bufferIndex + i] = color[i] || 0
@@ -37,11 +37,11 @@ function drawRect (buffer, x, y, width, height, color) {
 }
 
 function drawScene (buffer, scene, color) {
-    // Ignore zs to effectively 2D project, treat 1 unit as 1 pixel
+    // Ignore zs to effectively 2D project, treat 1 unit as 1 pixel, round to pixels
     scene.forEach((tri) => {
-        drawPixel(buffer, tri.p1.x, tri.p1.y, color)
-        drawPixel(buffer, tri.p2.x, tri.p2.y, color)
-        drawPixel(buffer, tri.p3.x, tri.p3.y, color)
+        drawPixel(buffer, Math.round(tri.p1.x), Math.round(tri.p1.y), color)
+        drawPixel(buffer, Math.round(tri.p2.x), Math.round(tri.p2.y), color)
+        drawPixel(buffer, Math.round(tri.p3.x), Math.round(tri.p3.y), color)
     })
 }
 
