@@ -1,17 +1,17 @@
-import ThiccEngine from "./thiccengine.js"
+import ThiccEngine, {Color, FrameBuffer} from "./thiccengine.js"
 import WebRenderTarget from "./renderer.js"
 
 const FRAME_WIDTH_PIXELS = 640
 const FRAME_HEIGHT_PIXELS = 360
-const COLOR_DARK_TEAL = [0, 63, 63, 255]
-const COLOR_CYAN = [0, 255, 255, 255]
-const COLOR_LIME = [0, 255, 0, 255]
+const COLOR_DARK_TEAL = new Color(0, 63, 63)
+const COLOR_CYAN = new Color(0, 255, 255)
+const COLOR_LIME = new Color(0, 255, 0)
 const TARGET_FPS = 30
 
 let frameBuffer, renderTarget
 
 function init () {
-    frameBuffer = new ThiccEngine.FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     renderTarget = new WebRenderTarget(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     window.setInterval(renderFrame, (1000/TARGET_FPS))
 }
