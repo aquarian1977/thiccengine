@@ -37,7 +37,7 @@ function drawRect (buffer, x, y, width, height, color) {
 }
 
 function drawScene (buffer, scene, color) {
-    // Ignore zs to effectively 2D project, treat 1 unit as 1 pixel, round to pixels
+    // Render just x/y to effectively 2D project from front, treat 1 unit as 1 pixel, round to pixels
     scene.forEach((tri) => {
         drawPixel(buffer, Math.round(tri.p1.x), Math.round(tri.p1.y), color)
         drawPixel(buffer, Math.round(tri.p2.x), Math.round(tri.p2.y), color)

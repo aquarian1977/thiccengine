@@ -4,10 +4,10 @@ class Vector3 {
         this.x = x, this.y = y, this.z = z
     }
 
-    getRotated (angle, originX = 0, originY = 0) {
+    getRotatedAboutZ (angle, origin = new Vector3(0, 0, 0)) {
         return new Vector3(
-            (this.x - originX) * Math.cos(angle) - (this.y - originY) * Math.sin(angle) + originX,
-            (this.y - originY) * Math.cos(angle) + (this.x - originX) * Math.sin(angle) + originY,
+            (this.x - origin.x) * Math.cos(angle) - (this.y - origin.y) * Math.sin(angle) + origin.x,
+            (this.y - origin.y) * Math.cos(angle) + (this.x - origin.x) * Math.sin(angle) + origin.y,
             this.z
         )
     }
@@ -18,12 +18,12 @@ class Tri {
         this.p1 = p1, this.p2 = p2, this.p3 = p3
     }
 
-    getRotated (angle, originX, originY) {
+    getRotatedAboutZ (angle, origin = new Vector3(0, 0, 0)) {
         // return new tri, with each point rotated about which axis and which origin hmmmm
         return new Tri(
-            this.p1.getRotated(angle, originX, originY),
-            this.p2.getRotated(angle, originX, originY),
-            this.p3.getRotated(angle, originX, originY)
+            this.p1.getRotatedAboutZ(angle, origin),
+            this.p2.getRotatedAboutZ(angle, origin),
+            this.p3.getRotatedAboutZ(angle, origin)
         )
     }
 }
