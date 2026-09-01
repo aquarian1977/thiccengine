@@ -4,6 +4,22 @@ class Vector3 {
         this.x = x, this.y = y, this.z = z
     }
 
+    getRotatedAboutX (angle, origin = new Vector3(0, 0, 0)) {
+        return new Vector3(
+            this.x,
+            (this.y - origin.y) * Math.cos(angle) - (this.z - origin.z) * Math.sin(angle) + origin.y,
+            (this.z - origin.z) * Math.cos(angle) - (this.y - origin.y) * Math.sin(angle) + origin.z
+        )
+    }
+
+    getRotatedAboutY (angle, origin = new Vector3(0, 0, 0)) {
+        return new Vector3(
+            (this.x - origin.x) * Math.cos(angle) - (this.z - origin.z) * Math.sin(angle) + origin.x,
+            this.y,
+            (this.z - origin.z) * Math.cos(angle) - (this.x - origin.x) * Math.sin(angle) + origin.z,
+        )
+    }
+
     getRotatedAboutZ (angle, origin = new Vector3(0, 0, 0)) {
         return new Vector3(
             (this.x - origin.x) * Math.cos(angle) - (this.y - origin.y) * Math.sin(angle) + origin.x,
