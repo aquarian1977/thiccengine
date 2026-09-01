@@ -1,11 +1,11 @@
-import ThiccEngine, {ColorRGB, ColorHSV, FrameBuffer} from "./thiccengine.js"
+import ThiccEngine, {FrameBuffer} from "./thiccengine.js"
 import WebRenderTarget from "./renderer.js"
-import {Tri, Vector3} from "./geometry.js"
+import {ColorRGB, ColorHSV} from "./colors.js"
+import {Vector3} from "./geometry.js"
 
 const FRAME_WIDTH_PIXELS = 300
 const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
-const COLOR_BLACK = new ColorRGB(0, 0, 0)
 
 let frameBuffer, renderTarget
 
@@ -16,12 +16,12 @@ function init () {
 }
 
 function renderFrame () {
-    ThiccEngine.fill(frameBuffer, COLOR_BLACK)
+    ThiccEngine.fill(frameBuffer, ColorRGB.BLACK)
     // Three vectors, unit length, in +x, +y, +z, centered on the origin
     const sceneOrigin = new Vector3(0, 0, 0)
-    ThiccEngine.drawVector(frameBuffer, new Vector3(1, 0, 0), sceneOrigin, new ColorHSV(0, 1, 1))
-    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 1, 0), sceneOrigin, new ColorHSV(135, 1, 1))
-    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 0, 1), sceneOrigin, new ColorHSV(270, 1, 1))
+    ThiccEngine.drawVector(frameBuffer, new Vector3(1, 0, 0), sceneOrigin, ColorRGB.RED)
+    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 1, 0), sceneOrigin, ColorRGB.GREEN)
+    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 0, 1), sceneOrigin, ColorRGB.BLUE)
     renderTarget.display(frameBuffer)
 }
 
