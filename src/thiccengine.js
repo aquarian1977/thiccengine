@@ -1,3 +1,5 @@
+const PROJECTION_SCALE_PIXELS_PER_UNIT = 100
+
 class ColorRGB extends Uint8ClampedArray {
     constructor (r = 0, g = 0, b = 0, a = 255) {
         super([r, g, b, a])
@@ -91,6 +93,21 @@ function drawRect (buffer, x, y, width, height, color) {
     }
 }
 
+// TODO: Break colors out into own file, differentiate raster functions (buffer-space) from rendering operations (scene-space)
+// TODO: Ensure vector rotations follow convention for left-handed coordinate system
+function drawVector(buffer, vector, origin, color) {
+    const centerX = Math.round(buffer.width / 2) // Points at 0, 0, 0 should be drawn in the middle of the buffer
+    const centerY = Math.round(buffer.height / 2)
+    drawLine( // Embody left-handed coordinate system where x is rightward, y is upward, z is into screen
+        buffer,
+        centerX + origin.x * PROJECTION_SCALE_PIXELS_PER_UNIT,
+        centerY - origin.y * PROJECTION_SCALE_PIXELS_PER_UNIT, // Y is upward, inverted compared to buffer
+        centerX + (origin.x + vector.x) * PROJECTION_SCALE_PIXELS_PER_UNIT,
+        centerY - (origin.y + vector.y) * PROJECTION_SCALE_PIXELS_PER_UNIT,
+        color
+    )
+}
+
 function drawScene (buffer, scene, color) {
     // Render just x/y to effectively 2D project from front, treat 1 unit as 1 pixel, round to pixels
     scene.forEach((tri) => {
@@ -101,4 +118,4 @@ function drawScene (buffer, scene, color) {
 }
 
 export {ColorRGB, ColorHSV, FrameBuffer}
-export default {drawScene, drawPixel, drawLine, drawRect, fill}
+export default {drawScene, drawPixel, drawLine, drawVector, drawRect, fill}

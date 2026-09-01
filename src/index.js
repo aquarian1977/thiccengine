@@ -5,35 +5,24 @@ import {Tri, Vector3} from "./geometry.js"
 const FRAME_WIDTH_PIXELS = 300
 const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
-const ROTATION_PER_FRAME_RADIANS = 2 * Math.PI / 135
+const COLOR_BLACK = new ColorRGB(0, 0, 0)
 
-let frameBuffer, renderTarget, sceneXRotationRadians, sceneYRotationRadians
+let frameBuffer, renderTarget
 
 function init () {
     frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     renderTarget = new WebRenderTarget(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    sceneXRotationRadians = 0
-    sceneYRotationRadians = 0
     window.setInterval(renderFrame, (1000/TARGET_FPS))
 }
 
 function renderFrame () {
-    ThiccEngine.fill(frameBuffer, new ColorRGB(0, 0, 0))
-    for (let thetaDegrees = 0; thetaDegrees < 360; thetaDegrees += 5) {
-        const origin = new Vector3(150, 150, 0)
-        const thetaRadians = (thetaDegrees / 360) * 2 * Math.PI
-        const deltaX = Math.cos(thetaRadians) * 100
-        const deltaY = Math.sin(thetaRadians) * 100
-
-        const line = new Vector3(origin.x + deltaX, origin.y + deltaY, 0)
-        const xRotatedLine = line.getRotatedAboutX(sceneXRotationRadians, origin)
-        const xyRotatedLine = xRotatedLine.getRotatedAboutY(sceneYRotationRadians, origin)
-
-        ThiccEngine.drawLine(frameBuffer, origin.x, origin.y, xyRotatedLine.x, xyRotatedLine.y, new ColorHSV(thetaDegrees, 1, 1))
-    }
+    ThiccEngine.fill(frameBuffer, COLOR_BLACK)
+    // Three vectors, unit length, in +x, +y, +z, centered on the origin
+    const sceneOrigin = new Vector3(0, 0, 0)
+    ThiccEngine.drawVector(frameBuffer, new Vector3(1, 0, 0), sceneOrigin, new ColorHSV(0, 1, 1))
+    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 1, 0), sceneOrigin, new ColorHSV(135, 1, 1))
+    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 0, 1), sceneOrigin, new ColorHSV(270, 1, 1))
     renderTarget.display(frameBuffer)
-    sceneXRotationRadians = (sceneXRotationRadians + ROTATION_PER_FRAME_RADIANS) % (2 * Math.PI)
-    sceneYRotationRadians = (sceneXRotationRadians + ROTATION_PER_FRAME_RADIANS * 1.3) % (2 * Math.PI)
 }
 
 document.addEventListener("DOMContentLoaded", init)
