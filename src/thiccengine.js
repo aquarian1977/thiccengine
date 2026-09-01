@@ -28,6 +28,36 @@ function drawPixel (buffer, x, y, color) {
     }
 }
 
+function drawLine (buffer, x1, y1, x2, y2, color) {
+    if (Math.abs(x2 - x1) > 0 && Math.abs((y2 - y1)/(x2 - x1)) <= 1) {
+        const increasingX = x2 > x1
+        const initX = increasingX ? x1 : x2
+        const finalX = increasingX ? x2 : x1
+        const deltaX = finalX - initX
+        const initY = increasingX ? y1 : y2
+        const finalY = increasingX ? y2 : y1
+        const deltaY = finalY - initY
+        const gradient = deltaY/deltaX
+        for (let x = initX; x <= finalX; x += 1) {
+            let y = (gradient * (x - initX)) + initY
+            drawPixel(buffer, x, Math.round(y), color)
+        }
+    } else if (Math.abs(y2 - y1) > 0 && Math.abs((x2 - x1)/(y2 - y1)) <= 1) {
+        const increasingY = y2 > y1
+        const initY = increasingY ? y1 : y2
+        const finalY = increasingY ? y2 : y1
+        const deltaY = finalY - initY
+        const initX = increasingY ? x1 : x2
+        const finalX = increasingY ? x2 : x1
+        const deltaX = finalX - initX
+        const gradient = deltaX/deltaY
+        for (let y = initY; y <= finalY; y += 1) {
+            let x = (gradient * (y - initY)) + initX
+            drawPixel(buffer, Math.round(x), y, color)
+        }
+    }
+}
+
 function drawRect (buffer, x, y, width, height, color) {
     for (let i = 0; i < height; i += 1) {
         for (let j = 0; j < width; j += 1) {
@@ -46,4 +76,4 @@ function drawScene (buffer, scene, color) {
 }
 
 export {Color, FrameBuffer}
-export default {drawScene, drawPixel, drawRect, fill}
+export default {drawScene, drawPixel, drawLine, drawRect, fill}
