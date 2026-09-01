@@ -13,4 +13,4 @@ class WebRenderTarget {
     }
 }
 
-export default WebRenderTarget
+export default {Web: WebRenderTarget}
