@@ -1,6 +1,6 @@
 import Rasterer from "./rasterer.js"
 
-const PROJECTION_SCALE_PIXELS_PER_UNIT = 100
+const PROJECTION_SCALE_PIXELS_PER_UNIT = 50
 
 function renderBackground (buffer, color) {
     Rasterer.rasterFill(buffer, color)
