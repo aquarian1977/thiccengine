@@ -1,5 +1,9 @@
 
 class Vector3 {
+    static X = new Vector3(1, 0, 0)
+    static Y = new Vector3(0, 1, 0)
+    static Z = new Vector3(0, 0, 1)
+
     constructor (x, y, z) {
         this.x = x, this.y = y, this.z = z
     }
