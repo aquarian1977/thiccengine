@@ -16,12 +16,12 @@ function init () {
 }
 
 function renderFrame () {
-    ThiccEngine.fill(frameBuffer, ColorRGB.BLACK)
+    ThiccEngine.rasterFill(frameBuffer, ColorRGB.BLACK)
     // Three vectors, unit length, in +x, +y, +z, centered on the origin
     const sceneOrigin = new Vector3(0, 0, 0)
-    ThiccEngine.drawVector(frameBuffer, new Vector3(1, 0, 0), sceneOrigin, ColorRGB.RED)
-    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 1, 0), sceneOrigin, ColorRGB.GREEN)
-    ThiccEngine.drawVector(frameBuffer, new Vector3(0, 0, 1), sceneOrigin, ColorRGB.BLUE)
+    ThiccEngine.renderVector(frameBuffer, new Vector3(1, 0, 0), sceneOrigin, ColorRGB.RED)
+    ThiccEngine.renderVector(frameBuffer, new Vector3(0, 1, 0), sceneOrigin, ColorRGB.GREEN)
+    ThiccEngine.renderVector(frameBuffer, new Vector3(0, 0, 1), sceneOrigin, ColorRGB.BLUE)
     renderTarget.display(frameBuffer)
 }
 
