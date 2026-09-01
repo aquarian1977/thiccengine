@@ -1,4 +1,4 @@
-class Color extends Uint8ClampedArray {
+class ColorRGB extends Uint8ClampedArray {
     static BYTE_LENGTH = 4
     constructor (r = 0, g = 0, b = 0, a = 255) {
         super([r, g, b, a])
@@ -7,7 +7,7 @@ class Color extends Uint8ClampedArray {
 
 class FrameBuffer {
     constructor (width = 320, height = 200) {
-        this.bytesPerPixel = Color.BYTE_LENGTH
+        this.bytesPerPixel = ColorRGB.BYTE_LENGTH
         this.data = new Uint8ClampedArray(width * height * this.bytesPerPixel)
         this.width = width
         this.height = height
@@ -75,5 +75,5 @@ function drawScene (buffer, scene, color) {
     })
 }
 
-export {Color, FrameBuffer}
+export {ColorRGB, FrameBuffer}
 export default {drawScene, drawPixel, drawLine, drawRect, fill}
