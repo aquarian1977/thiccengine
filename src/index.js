@@ -3,7 +3,7 @@ import RenderTarget from "./render-target.js"
 import ThiccEngine from "./thiccengine.js"
 import {ColorRGB} from "./colors.js"
 import {Vector3} from "./geometry.js"
-import {Quad} from "./objects.js"
+import {Quad, Cube} from "./objects.js"
 
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
@@ -16,10 +16,10 @@ function init () {
     frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     camera = {
         position: new Vector3(0, 0, 0),
-        tilt: 0
+        tilt: Vector3.ANGLE_90
     }
     sceneObjects = [
-        new Quad(1, 1, Vector3.ORIGIN)
+        new Cube(1)
     ]
     window.setInterval(renderFrame, (1000/TARGET_FPS))
 }
