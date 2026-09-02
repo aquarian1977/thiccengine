@@ -7,7 +7,7 @@ function renderBackground (buffer, color) {
     Rasterer.rasterFill(buffer, color)
 }
 
-function renderVector(buffer, vector, origin, color) {
+function renderVector (buffer, vector, origin, color) {
     const centerX = Math.round(buffer.width / 2) // Points at 0, 0, 0 should be drawn in the middle of the buffer
     const centerY = Math.round(buffer.height / 2)
     Rasterer.rasterLine( // Embody left-handed coordinate system where x is rightward, y is upward, z is into screen
@@ -33,7 +33,7 @@ function renderLine (buffer, start, end, color) {
     )
 }
 
-function renderTri(buffer, tri) {
+function renderTri (buffer, tri) {
     renderLine(buffer, tri.p1, tri.p2, ColorRGB.RED)
     renderLine(buffer, tri.p2, tri.p3, ColorRGB.GREEN)
     renderLine(buffer, tri.p3, tri.p1, ColorRGB.BLUE)

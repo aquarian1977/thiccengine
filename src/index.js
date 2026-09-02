@@ -8,6 +8,12 @@ import {Quad, Cube} from "./objects.js"
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
+const COLOR_MID_GREY = new ColorRGB(127, 127, 127)
+const COLOR_SKY_BLUE = new ColorRGB(67, 126, 180)
+const COLOR_SAND_BROWN = new ColorRGB(136, 112, 100)
+const COLOR_LIME = new ColorRGB(108, 227, 73)
+const COLOR_FUCHSIA = new ColorRGB(225, 50, 243)
+const COLOR_TEAL = new ColorRGB(57, 116, 118)
 
 let renderTarget, frameBuffer, camera, sceneObjects
 
@@ -25,7 +31,7 @@ function init () {
 }
 
 function renderFrame () {
-    ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
+    ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
 
     const tris = sceneObjects.reduce((accum, sceneObject) => {
         return accum.concat(sceneObject.getTris())
