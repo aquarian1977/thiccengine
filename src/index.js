@@ -20,14 +20,46 @@ function init () {
         Vector3.X,
         Vector3.Y,
         Vector3.Z,
-        new Vector3(0.5, 0.5, 0.5)
+        new Vector3(0.57735, 0.57735, 0.57735)
     ]
     sceneAngle = 0
+
+    const epsilon = 0.000001
+    const degreesPerIteration = 2
+    const radsPerIteration = Math.PI * (degreesPerIteration / 180)
+
+    // Order XYZ: PASS
+    // Order YZX: PASS
+    // Order ZXY: PASS
+    // Order ZYX: PASS
+    // Order YXZ: PASS
+    // Order XZY: PASS
+
+    console.log("=== Beginning gauntlet ===")
+    for (let i = 0; i <= Math.PI * 2; i += radsPerIteration) {
+        for (let j = 0; j <= Math.PI * 2; j += radsPerIteration) {
+            for (let k = 0; k <= Math.PI * 2; k += radsPerIteration) {
+                for (let l = 0; l < scene.length; l += 1) {
+                    const originalMagnitude = scene[l].getMagnitude()
+                    const vector = (scene[l].getRotatedAboutX(i)
+                        .getRotatedAboutZ(j)
+                        .getRotatedAboutY(k)
+                    )
+                    const transformedMagnitude = vector.getMagnitude()
+                    if (transformedMagnitude > (originalMagnitude + epsilon)) {
+                        console.log("Longer than vector length: " + transformedMagnitude + ", " + originalMagnitude)
+                    } else if (transformedMagnitude < (originalMagnitude - epsilon)) {
+                        console.log("Shorter than vector length: " + transformedMagnitude + ", " + originalMagnitude)
+                    }
+                }
+            }
+        }
+    }
+    console.log("=== Ended gauntlet ===")
 
     window.setInterval(renderFrame, (1000/TARGET_FPS))
 }
 
-// TODO: Applying Y rotation after X rotation screws up the numbers, so that's a good lead
 function renderFrame () {
     ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
     scene.forEach((vector, i) => {

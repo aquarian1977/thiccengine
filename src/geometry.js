@@ -12,6 +12,12 @@ class Vector3 {
         this.x = x, this.y = y, this.z = z
     }
 
+    getMagnitude () {
+        return Math.sqrt(
+            this.x * this.x + this.y * this.y + this.z * this.z
+        )
+    }
+
     getRotatedAboutX (angle, origin = new Vector3(0, 0, 0)) {
         return new Vector3(
             this.x,
@@ -43,7 +49,6 @@ class Tri {
     }
 
     getRotatedAboutZ (angle, origin = new Vector3(0, 0, 0)) {
-        // return new tri, with each point rotated about which axis and which origin hmmmm
         return new Tri(
             this.p1.getRotatedAboutZ(angle, origin),
             this.p2.getRotatedAboutZ(angle, origin),
