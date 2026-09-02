@@ -9,38 +9,29 @@ const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
 
-let renderTarget, frameBuffer
+let renderTarget, frameBuffer, camera, sceneObjects
 
 function init () {
     renderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    camera = {
+        position: new Vector3(0, 0, 0),
+        tilt: 0
+    }
+    sceneObjects = [
+        new Quad(1, 1, Vector3.ORIGIN)
+    ]
     window.setInterval(renderFrame, (1000/TARGET_FPS))
 }
 
 function renderFrame () {
     ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
 
-    // Be able to make some cubes and quads, and lay them out on a nice grid
-    // Have them match the exact objects and colors from ThiccEngine 1.0
-    // Then have a camera or view object, and move that around the scene as above
-    // Render projected face-on from POV of camera
-    // Then implement perspective-corrected projection
-
-    // Then transform into camera space
-    // Then project to perspective
-    const camera = {
-        position: new Vector3(0, 0, -5),
-        rotation: Vector3.ANGLE_45
-    }
-    const sceneObjects = [
-        new Quad(1, 1, Vector3.ORIGIN)
-    ]
-
     const tris = sceneObjects.reduce((accum, sceneObject) => {
         return accum.concat(sceneObject.getTris())
     }, [])
     const cameraSpaceTris = tris.map(tri => {
-        return tri.getTranslated(camera.position.getInverse()).getRotatedAboutY(-camera.rotation)
+        return tri.getTranslated(camera.position.getInverse()).getRotatedAboutX(-camera.tilt)
     })
     cameraSpaceTris.forEach(tri => {
         ThiccEngine.renderTri(frameBuffer, tri)
