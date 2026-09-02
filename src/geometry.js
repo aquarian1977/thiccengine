@@ -3,6 +3,7 @@ class Vector3 {
     static X = new Vector3(1, 0, 0)
     static Y = new Vector3(0, 1, 0)
     static Z = new Vector3(0, 0, 1)
+    static ORIGIN = new Vector3(0, 0, 0)
     static ANGLE_45 = Math.PI * 0.25
     static ANGLE_90 = Math.PI * 0.5
     static ANGLE_180 = Math.PI * 1.0
@@ -12,9 +13,23 @@ class Vector3 {
         this.x = x, this.y = y, this.z = z
     }
 
+    getInverse () {
+        return new Vector3(
+            -this.x, -this.y, -this.z
+        )
+    }
+
     getMagnitude () {
         return Math.sqrt(
             this.x * this.x + this.y * this.y + this.z * this.z
+        )
+    }
+
+    getTranslated(translation) {
+        return new Vector3(
+            this.x + translation.x,
+            this.y + translation.y,
+            this.z + translation.z
         )
     }
 
@@ -43,9 +58,34 @@ class Vector3 {
     }
 }
 
+// TODO: Tris should have a color and can later have a material
 class Tri {
     constructor (p1, p2, p3) {
         this.p1 = p1, this.p2 = p2, this.p3 = p3
+    }
+
+    getTranslated (translation) {
+        return new Tri(
+            this.p1.getTranslated(translation),
+            this.p2.getTranslated(translation),
+            this.p3.getTranslated(translation)
+        )
+    }
+
+    getRotatedAboutX (angle, origin = new Vector3(0, 0, 0)) {
+        return new Tri(
+            this.p1.getRotatedAboutX(angle, origin),
+            this.p2.getRotatedAboutX(angle, origin),
+            this.p3.getRotatedAboutX(angle, origin)
+        )
+    }
+
+    getRotatedAboutY (angle, origin = new Vector3(0, 0, 0)) {
+        return new Tri(
+            this.p1.getRotatedAboutY(angle, origin),
+            this.p2.getRotatedAboutY(angle, origin),
+            this.p3.getRotatedAboutY(angle, origin)
+        )
     }
 
     getRotatedAboutZ (angle, origin = new Vector3(0, 0, 0)) {
