@@ -1,3 +1,4 @@
+import {ColorRGB} from "./colors.js"
 
 class Vector3 {
     static X = new Vector3(1, 0, 0)
@@ -66,17 +67,17 @@ class Vector3 {
     }
 }
 
-// TODO: Tris should have a color and can later have a material
 class Tri {
-    constructor (p1, p2, p3) {
-        this.p1 = p1, this.p2 = p2, this.p3 = p3
+    constructor (p1, p2, p3, color = ColorRGB.WHITE) {
+        this.p1 = p1, this.p2 = p2, this.p3 = p3, this.color = color
     }
 
     getTranslated (translation) {
         return new Tri(
             this.p1.getTranslated(translation),
             this.p2.getTranslated(translation),
-            this.p3.getTranslated(translation)
+            this.p3.getTranslated(translation),
+            this.color
         )
     }
 
@@ -84,7 +85,8 @@ class Tri {
         return new Tri(
             this.p1.getRotatedAboutX(angle, origin),
             this.p2.getRotatedAboutX(angle, origin),
-            this.p3.getRotatedAboutX(angle, origin)
+            this.p3.getRotatedAboutX(angle, origin),
+            this.color
         )
     }
 
@@ -92,7 +94,8 @@ class Tri {
         return new Tri(
             this.p1.getRotatedAboutY(angle, origin),
             this.p2.getRotatedAboutY(angle, origin),
-            this.p3.getRotatedAboutY(angle, origin)
+            this.p3.getRotatedAboutY(angle, origin),
+            this.color
         )
     }
 
@@ -100,7 +103,8 @@ class Tri {
         return new Tri(
             this.p1.getRotatedAboutZ(angle, origin),
             this.p2.getRotatedAboutZ(angle, origin),
-            this.p3.getRotatedAboutZ(angle, origin)
+            this.p3.getRotatedAboutZ(angle, origin),
+            this.color
         )
     }
 }

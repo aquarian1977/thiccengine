@@ -25,7 +25,7 @@ function init () {
         tilt: Vector3.ANGLE_90
     }
     sceneObjects = [
-        new Cube(1, Vector3.Z.getScaled(2))
+        new Cube(1, Vector3.Z.getScaled(2), COLOR_TEAL)
     ]
     window.setInterval(renderFrame, (1000/TARGET_FPS))
 }
