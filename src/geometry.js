@@ -13,6 +13,14 @@ class Vector3 {
         this.x = x, this.y = y, this.z = z
     }
 
+    getScaled (scale) {
+        return new Vector3(
+            this.x * scale,
+            this.y * scale,
+            this.z * scale
+        )
+    } 
+
     getInverse () {
         return new Vector3(
             -this.x, -this.y, -this.z

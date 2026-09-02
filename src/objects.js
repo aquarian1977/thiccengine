@@ -1,6 +1,7 @@
 import {Vector3, Tri} from "./geometry.js"
 
 class Quad {
+    // NB. Quad constructor currently creates in xy plane
     constructor (width = 1, height = 1, origin = Vector3.ORIGIN) {
         this.width = width
         this.height = height
@@ -47,23 +48,19 @@ class Quad {
 }
 
 class Cube {
-    constructor (dimension) {
+    constructor (dimension, origin = Vector3.ORIGIN) {
         const displacement = new Vector3(0, 0, -dimension/2)
         const faceQuad = new Quad(dimension, dimension, displacement) // Pull it forward in -Z
-        const back = faceQuad.getRotatedAboutY(Vector3.ANGLE_180)
-        const right = faceQuad.getRotatedAboutY(Vector3.ANGLE_270)
-        const front = faceQuad
-        const left = faceQuad.getRotatedAboutY(Vector3.ANGLE_90)
-        const top = faceQuad.getRotatedAboutX(Vector3.ANGLE_90)
-        const bottom = faceQuad.getRotatedAboutX(Vector3.ANGLE_270)
-        this.tris = [
-            ...back.getTris(),
-            ...right.getTris(),
-            ...front.getTris(),
-            ...left.getTris(),
-            ...top.getTris(),
-            ...bottom.getTris()
+        const quads = [
+            faceQuad.getRotatedAboutY(Vector3.ANGLE_180), // Back
+            faceQuad.getRotatedAboutY(Vector3.ANGLE_270), // Right
+            faceQuad, // Front
+            faceQuad.getRotatedAboutY(Vector3.ANGLE_90), // Left
+            faceQuad.getRotatedAboutX(Vector3.ANGLE_90), // Top
+            faceQuad.getRotatedAboutX(Vector3.ANGLE_270) // Bottom
         ]
+        const rawTris = quads.reduce((accum, quad) => accum.concat(quad.getTris()), [])
+        this.tris = rawTris.map(tri => tri.getTranslated(origin))
     }
 
     getTris () {
