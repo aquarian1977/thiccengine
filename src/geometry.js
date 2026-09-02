@@ -16,7 +16,7 @@ class Vector3 {
         return new Vector3(
             this.x,
             (this.y - origin.y) * Math.cos(angle) - (this.z - origin.z) * Math.sin(angle) + origin.y,
-            (this.z - origin.z) * Math.cos(angle) - (this.y - origin.y) * Math.sin(angle) + origin.z
+            (this.z - origin.z) * Math.cos(angle) + (this.y - origin.y) * Math.sin(angle) + origin.z
         )
     }
 

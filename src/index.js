@@ -42,7 +42,7 @@ function renderFrame () {
         ThiccEngine.renderVector(frameBuffer, sideOnVector, new Vector3(2.5, 1, 0), new ColorHSV(i * 90, 1, 1))
     })
     scene.forEach((vector, i) => {
-        const perspectiveVector = vector.getRotatedAboutY(sceneAngle).getRotatedAboutX(-Vector3.ANGLE_45)
+        const perspectiveVector = vector.getRotatedAboutX(sceneAngle).getRotatedAboutY(sceneAngle).getRotatedAboutZ(sceneAngle)
         ThiccEngine.renderVector(frameBuffer, perspectiveVector, new Vector3(0, -2, 0), new ColorHSV(i * 90, 1, 1))
     })
 
