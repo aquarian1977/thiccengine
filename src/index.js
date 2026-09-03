@@ -16,17 +16,15 @@ const COLOR_LIME = new ColorRGB(108, 227, 73)
 const COLOR_FUCHSIA = new ColorRGB(225, 50, 243)
 const COLOR_TEAL = new ColorRGB(57, 116, 118)
 
-let renderTarget, frameBuffer, camera, sceneObjects, sceneAngle
-
 function init () {
-    renderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    sceneAngle = 0
-    camera = {
+    const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const camera = {
         position: new Vector3(0, 0, 0),
-        tilt: Vector3.ANGLE_45
+        tilt: Vector3.ANGLE_45,
+        rotation: 0
     }
-    sceneObjects = [
+    const scene = [
         new Quad(10, 1.5, new Vector3(0, 0.75, 11), COLOR_LIME),
 
         new Cube(1, new Vector3(0, 0.5, 9.5), COLOR_FUCHSIA),
@@ -41,16 +39,20 @@ function init () {
         new Cube(0.5, new Vector3(3, 0.25, 6), COLOR_TEAL),
         new Cube(0.5, new Vector3(3, 0.25, 8), COLOR_TEAL)
     ]
-    window.setInterval(renderFrame, (1000/TARGET_FPS))
+
+    window.setInterval(() => {
+        renderMainView(scene, camera, frameBuffer, mainRenderTarget)
+        camera.rotation = (camera.rotation + ANGLE_INCREMENT_PER_FRAME) % (Math.PI * 2)
+    }, (1000/TARGET_FPS))
 }
 
-function renderFrame () {
-    const tris = sceneObjects.reduce((accum, sceneObject) => {
+function renderMainView (scene, camera, frameBuffer, renderTarget) {
+    const tris = scene.reduce((accum, sceneObject) => {
         return accum.concat(sceneObject.getTris())
     }, [])
     const cameraSpaceTris = tris.map(tri => {
         return (tri.getTranslated(camera.position.getInverse())
-        .getRotatedAboutY(sceneAngle)
+        .getRotatedAboutY(camera.rotation)
         .getRotatedAboutX(-camera.tilt)
     )
     })
@@ -58,7 +60,6 @@ function renderFrame () {
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     cameraSpaceTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
     renderTarget.display(frameBuffer)
-    sceneAngle = (sceneAngle + ANGLE_INCREMENT_PER_FRAME) % (Math.PI * 2)
 }
 
 document.addEventListener("DOMContentLoaded", init)
