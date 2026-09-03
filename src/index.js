@@ -17,8 +17,11 @@ const COLOR_FUCHSIA = new ColorRGB(225, 50, 243)
 const COLOR_TEAL = new ColorRGB(57, 116, 118)
 
 function init () {
+    const overheadRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const overheadFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    const frameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+
     const camera = {
         position: new Vector3(0, 0, 0),
         tilt: Vector3.ANGLE_45,
@@ -39,22 +42,30 @@ function init () {
         new Cube(0.5, new Vector3(3, 0.25, 6), COLOR_TEAL),
         new Cube(0.5, new Vector3(3, 0.25, 8), COLOR_TEAL)
     ]
+    const sceneTris = scene.reduce((accum, sceneObject) => {
+        return accum.concat(sceneObject.getTris())
+    }, [])
 
     window.setInterval(() => {
-        renderMainView(scene, camera, frameBuffer, mainRenderTarget)
+        renderOverheadView(sceneTris, camera, overheadFrameBuffer, overheadRenderTarget)
+        renderMainView(sceneTris, camera, mainFrameBuffer, mainRenderTarget)
         camera.rotation = (camera.rotation + ANGLE_INCREMENT_PER_FRAME) % (Math.PI * 2)
     }, (1000/TARGET_FPS))
 }
 
-function renderMainView (scene, camera, frameBuffer, renderTarget) {
-    const tris = scene.reduce((accum, sceneObject) => {
-        return accum.concat(sceneObject.getTris())
-    }, [])
+function renderOverheadView (tris, camera, frameBuffer, renderTarget) {
+    const overheadTris = tris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
+    ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
+    overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
+    renderTarget.display(frameBuffer)
+}
+
+function renderMainView (tris, camera, frameBuffer, renderTarget) {
     const cameraSpaceTris = tris.map(tri => {
         return (tri.getTranslated(camera.position.getInverse())
-        .getRotatedAboutY(camera.rotation)
-        .getRotatedAboutX(-camera.tilt)
-    )
+            .getRotatedAboutY(camera.rotation)
+            .getRotatedAboutX(-camera.tilt)
+        )
     })
 
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
