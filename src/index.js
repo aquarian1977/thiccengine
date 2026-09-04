@@ -20,13 +20,15 @@ const COLOR_TEAL = new ColorRGB(57, 116, 118)
 function init () {
     const overheadRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const overheadFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
 
-    let camera = new Camera(new Vector3(0, 1, 0), 0, Vector3.ANGLE_90)
+    let camera = new Camera(new Vector3(0, 1, 0), 0, Vector3.ANGLE_DEGREE * 110)
     let angleTicker = 0
     const scene = [
-        new Quad(10, 1.5, new Vector3(0, 0.75, 11), COLOR_LIME),
+        new Quad(10, 2, new Vector3(0, 1, 11), COLOR_LIME),
 
-        new Cube(1, new Vector3(0, 0.5, 9.5), COLOR_FUCHSIA),
+        new Cube(1.5, new Vector3(0, 0.75, 9.5), COLOR_FUCHSIA),
 
         new Cube(0.5, new Vector3(-3, 0.25, 2), COLOR_TEAL),
         new Cube(0.5, new Vector3(-3, 0.25, 4), COLOR_TEAL),
@@ -44,6 +46,7 @@ function init () {
 
     window.setInterval(() => {
         renderOverheadView(sceneTris, camera, overheadFrameBuffer, overheadRenderTarget)
+        renderMainView(sceneTris, camera, mainFrameBuffer, mainRenderTarget)
         angleTicker = (angleTicker + ANGLE_INCREMENT_PER_FRAME) % (2 * Math.PI)
         camera = (camera.getRotatedAboutY(Math.cos(angleTicker) * Vector3.ANGLE_45 * ANGLE_INCREMENT_PER_FRAME))
     }, (1000/TARGET_FPS))
@@ -58,6 +61,16 @@ function renderOverheadView (tris, camera, frameBuffer, renderTarget) {
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     ThiccEngine.renderAxes(frameBuffer, COLOR_DARK_GREY)
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
+    renderTarget.display(frameBuffer)
+}
+
+function renderMainView (tris, camera, frameBuffer, renderTarget) {
+    ThiccEngine.renderWorldBackground(frameBuffer, COLOR_SKY_BLUE, COLOR_SAND_BROWN)
+    const viewTris = tris.map(tri => {
+        return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
+    })
+    const culledTris = viewTris.filter(tri => tri.p1.z > 1 && tri.p2.z > 1)
+    ThiccEngine.renderProjected(frameBuffer, culledTris, camera)
     renderTarget.display(frameBuffer)
 }
 

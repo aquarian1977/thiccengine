@@ -27,7 +27,7 @@ class Camera {
         )
     }
 
-    getRotatedAboutY (angle) {
+    getRotatedAboutY (angle) { // TODO: This rotates about the position rather than about itself
         return new Camera(
             this.position, (this.angle + angle) % (2 * Math.PI), this.fov
         )
