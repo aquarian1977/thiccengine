@@ -1,6 +1,34 @@
 import {ColorRGB} from "./colors.js"
 import {Vector3, Tri} from "./geometry.js"
 
+class Camera {
+    constructor (position, fov) {
+        this.position = position
+        this.fov = (fov && fov < Vector3.ANGLE_180) ? fov : Vector3.ANGLE_90
+        const leftOffset = -Math.tan(this.fov / 2)
+        const rightOffset = Math.tan(this.fov / 2)
+        this.tris = [
+            new Tri(
+                position,
+                position.getTranslated(new Vector3(leftOffset, 0, 1)),
+                position.getTranslated(new Vector3(rightOffset, 0, 1)),
+                ColorRGB.GREEN
+            )
+        ]
+    }
+
+    getTranslated (translation = Vector3.ORIGIN) {
+        return new Camera(
+            this.position.getTranslated(translation),
+            this.fov
+        )
+    }
+
+    getTris () {
+        return this.tris
+    }
+}
+
 class Quad {
     // NB. Quad constructor currently creates in xy plane
     constructor (width = 1, height = 1, origin = Vector3.ORIGIN, color = ColorRGB.WHITE) {
@@ -72,4 +100,4 @@ class Cube {
     }
 }
 
-export {Quad, Cube}
+export {Camera, Quad, Cube}

@@ -1,9 +1,9 @@
 import FrameBuffer from "./frame-buffer.js"
 import RenderTarget from "./render-target.js"
-import ThiccEngine, {Camera} from "./thiccengine.js"
+import ThiccEngine from "./thiccengine.js"
 import {ColorRGB} from "./colors.js"
 import {Vector3} from "./geometry.js"
-import {Quad, Cube} from "./objects.js"
+import {Camera, Quad, Cube} from "./objects.js"
 
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
