@@ -21,7 +21,7 @@ function init () {
     const overheadRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const overheadFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
 
-    let camera = new Camera(new Vector3(0, 1, 0), Vector3.ANGLE_90)
+    let camera = new Camera(new Vector3(0, 1, 0), 0, Vector3.ANGLE_90)
     let angleTicker = 0
     const scene = [
         new Quad(10, 1.5, new Vector3(0, 0.75, 11), COLOR_LIME),
@@ -45,13 +45,16 @@ function init () {
     window.setInterval(() => {
         renderOverheadView(sceneTris, camera, overheadFrameBuffer, overheadRenderTarget)
         angleTicker = (angleTicker + ANGLE_INCREMENT_PER_FRAME) % (2 * Math.PI)
-        camera = camera.getTranslated(new Vector3(Math.cos(angleTicker) * 0.1, 0, 0))
+        camera = (camera.getRotatedAboutY(Math.cos(angleTicker) * Vector3.ANGLE_45 * ANGLE_INCREMENT_PER_FRAME))
     }, (1000/TARGET_FPS))
 }
 
 function renderOverheadView (tris, camera, frameBuffer, renderTarget) {
     const sceneTris = tris.concat(camera.getTris())
-    const overheadTris = sceneTris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
+    const viewTris = sceneTris.map(tri => {
+        return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
+    })
+    const overheadTris = viewTris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     ThiccEngine.renderAxes(frameBuffer, COLOR_DARK_GREY)
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))

@@ -2,12 +2,13 @@ import {ColorRGB} from "./colors.js"
 import {Vector3, Tri} from "./geometry.js"
 
 class Camera {
-    constructor (position, fov) {
+    constructor (position, angle = 0, fov = Vector3.ANGLE_90) {
         this.position = position
+        this.angle = angle % (2 * Math.PI)
         this.fov = (fov && fov < Vector3.ANGLE_180) ? fov : Vector3.ANGLE_90
         const leftOffset = -Math.tan(this.fov / 2)
         const rightOffset = Math.tan(this.fov / 2)
-        this.tris = [
+        const rawTris = [
             new Tri(
                 position,
                 position.getTranslated(new Vector3(leftOffset, 0, 1)),
@@ -15,17 +16,33 @@ class Camera {
                 ColorRGB.GREEN
             )
         ]
+        this.tris = rawTris.map(tri => tri.getRotatedAboutY(angle))
     }
 
     getTranslated (translation = Vector3.ORIGIN) {
         return new Camera(
             this.position.getTranslated(translation),
+            this.angle,
             this.fov
+        )
+    }
+
+    getRotatedAboutY (angle) {
+        return new Camera(
+            this.position, (this.angle + angle) % (2 * Math.PI), this.fov
         )
     }
 
     getTris () {
         return this.tris
+    }
+
+    getSceneTranslation () {
+        return this.position.getInverse()
+    }
+
+    getSceneAngle () {
+        return -1 * this.angle
     }
 }
 
