@@ -16,3 +16,7 @@ npm start
 
 Else just skip install and run
 `npx serve src/`
+
+## Screenshot
+
+<img width="334" height="501" alt="ThiccEngine 2.0 Screenshot" src="https://github.com/user-attachments/assets/cc6d30e1-6335-497e-9f26-ba8005bfe41b" />
