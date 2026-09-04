@@ -36,6 +36,13 @@ function renderBackground (buffer, color) {
     Rasterer.rasterFill(buffer, color)
 }
 
+function renderAxes (buffer, color) {
+    const centerX = Math.round(buffer.width / 2)
+    const centerY = Math.round(buffer.height / 2)
+    Rasterer.rasterLine(buffer, centerX, 0, centerX, buffer.height, color)
+    Rasterer.rasterLine(buffer, 0, centerY, buffer.width, centerY, color)
+}
+
 function renderLine (buffer, start, end, color) {
     const centerX = Math.round(buffer.width / 2) // Points at 0, 0, 0 should be drawn in the middle of the buffer
     const centerY = Math.round(buffer.height / 2)
@@ -56,4 +63,4 @@ function renderTri (buffer, tri) {
 }
 
 export {Camera}
-export default {renderBackground, renderLine, renderTri}
+export default {renderBackground, renderAxes, renderLine, renderTri}

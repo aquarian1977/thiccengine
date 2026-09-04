@@ -10,6 +10,7 @@ const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
 const ANGLE_INCREMENT_PER_FRAME = Math.PI * (1 / 180)
 const COLOR_MID_GREY = new ColorRGB(127, 127, 127)
+const COLOR_DARK_GREY = new ColorRGB(110, 110, 110)
 const COLOR_SKY_BLUE = new ColorRGB(67, 126, 180)
 const COLOR_SAND_BROWN = new ColorRGB(136, 112, 100)
 const COLOR_LIME = new ColorRGB(108, 227, 73)
@@ -52,6 +53,7 @@ function renderOverheadView (tris, camera, frameBuffer, renderTarget) {
     const sceneTris = tris.concat(camera.getTris())
     const overheadTris = sceneTris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
+    ThiccEngine.renderAxes(frameBuffer, COLOR_DARK_GREY)
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
     renderTarget.display(frameBuffer)
 }
