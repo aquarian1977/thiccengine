@@ -1,6 +1,6 @@
 import FrameBuffer from "./frame-buffer.js"
 import RenderTarget from "./render-target.js"
-import ThiccEngine from "./thiccengine.js"
+import ThiccEngine, {Camera} from "./thiccengine.js"
 import {ColorRGB} from "./colors.js"
 import {Vector3} from "./geometry.js"
 import {Quad, Cube} from "./objects.js"
@@ -19,14 +19,9 @@ const COLOR_TEAL = new ColorRGB(57, 116, 118)
 function init () {
     const overheadRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const overheadFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
 
-    const camera = {
-        position: new Vector3(0, 0, 0),
-        tilt: Vector3.ANGLE_45,
-        rotation: 0
-    }
+    let camera = new Camera(new Vector3(0, 1, 0), Vector3.ANGLE_90)
+    let angleTicker = 0
     const scene = [
         new Quad(10, 1.5, new Vector3(0, 0.75, 11), COLOR_LIME),
 
@@ -48,28 +43,16 @@ function init () {
 
     window.setInterval(() => {
         renderOverheadView(sceneTris, camera, overheadFrameBuffer, overheadRenderTarget)
-        renderMainView(sceneTris, camera, mainFrameBuffer, mainRenderTarget)
-        camera.rotation = (camera.rotation + ANGLE_INCREMENT_PER_FRAME) % (Math.PI * 2)
+        angleTicker = (angleTicker + ANGLE_INCREMENT_PER_FRAME) % (2 * Math.PI)
+        camera = camera.getTranslated(new Vector3(Math.cos(angleTicker) * 0.1, 0, 0))
     }, (1000/TARGET_FPS))
 }
 
 function renderOverheadView (tris, camera, frameBuffer, renderTarget) {
-    const overheadTris = tris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
+    const sceneTris = tris.concat(camera.getTris())
+    const overheadTris = sceneTris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
-    renderTarget.display(frameBuffer)
-}
-
-function renderMainView (tris, camera, frameBuffer, renderTarget) {
-    const cameraSpaceTris = tris.map(tri => {
-        return (tri.getTranslated(camera.position.getInverse())
-            .getRotatedAboutY(camera.rotation)
-            .getRotatedAboutX(-camera.tilt)
-        )
-    })
-
-    ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
-    cameraSpaceTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
     renderTarget.display(frameBuffer)
 }
 

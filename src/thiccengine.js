@@ -1,6 +1,36 @@
+import {Vector3, Tri} from "./geometry.js"
+import {ColorRGB} from "./colors.js"
 import Rasterer from "./rasterer.js"
 
 const PROJECTION_SCALE_PIXELS_PER_UNIT = 10
+
+class Camera {
+    constructor (position, fov) {
+        this.position = position
+        this.fov = (fov && fov < Vector3.ANGLE_180) ? fov : Vector3.ANGLE_90
+        const leftOffset = -Math.tan(this.fov / 2)
+        const rightOffset = Math.tan(this.fov / 2)
+        this.tris = [
+            new Tri(
+                position,
+                position.getTranslated(new Vector3(leftOffset, 0, 1)),
+                position.getTranslated(new Vector3(rightOffset, 0, 1)),
+                ColorRGB.GREEN
+            )
+        ]
+    }
+
+    getTranslated (translation = Vector3.ORIGIN) {
+        return new Camera(
+            this.position.getTranslated(translation),
+            this.fov
+        )
+    }
+
+    getTris () {
+        return this.tris
+    }
+}
 
 function renderBackground (buffer, color) {
     Rasterer.rasterFill(buffer, color)
@@ -25,4 +55,5 @@ function renderTri (buffer, tri) {
     renderLine(buffer, tri.p3, tri.p1, tri.color)
 }
 
+export {Camera}
 export default {renderBackground, renderLine, renderTri}
