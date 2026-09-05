@@ -15,6 +15,29 @@ class Vector3 {
         this.x = x, this.y = y, this.z = z
     }
 
+    getDotProduct (vector) {
+        return (
+            this.x * vector.x + this.y * vector.y + this.z * vector.z
+        )
+    }
+
+    /*
+    getAngle (vector) { // Angle between this and other vector between 0 and Math.PI
+        const dotProduct = this.getDotProduct(vector)
+        const magThis = this.getMagnitude()
+        const magVector = vector.getMagnitude()
+        return Math.cosh(dotProduct/(magThis * magVector))
+    }
+
+    crossProduct (vector) {
+        return new Vector3(
+            this.y * vector.z - this.z * vector.y,
+            this.z * vector.x - this.x * vector.z,
+            this.x * vector.y - this.y * vector.x
+        )
+    }
+    */
+
     getScaled (scale) {
         return new Vector3(
             this.x * scale,
@@ -71,6 +94,14 @@ class Vector3 {
 class Tri {
     constructor (p1, p2, p3, color = ColorRGB.WHITE) {
         this.p1 = p1, this.p2 = p2, this.p3 = p3, this.color = color
+    }
+
+    getCenter () {
+        return new Vector3(
+            (this.p1.x + this.p2.x + this.p3.x) / 3, 
+            (this.p1.y + this.p2.y + this.p3.y) / 3, 
+            (this.p1.z + this.p2.z + this.p3.z) / 3
+        )
     }
 
     getTranslated (translation) {

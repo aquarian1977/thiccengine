@@ -23,7 +23,7 @@ function init () {
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
 
-    let camera = new Camera(new Vector3(0, 1, 0), 0, Vector3.ANGLE_DEGREE * 110)
+    let camera = new Camera(new Vector3(2, 1, 14), Vector3.ANGLE_DEGREE * 190, Vector3.ANGLE_DEGREE * 110)
     let angleTicker = 0
     const scene = [
         new Quad(10, 2, new Vector3(0, 1, 11), COLOR_LIME),
@@ -69,8 +69,8 @@ function renderMainView (tris, camera, frameBuffer, renderTarget) {
     const viewTris = tris.map(tri => {
         return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
     })
-    const culledTris = viewTris.filter(tri => tri.p1.z > 1 && tri.p2.z > 1)
-    ThiccEngine.renderProjected(frameBuffer, culledTris, camera)
+    const culledTris = viewTris.filter(tri => tri.p1.z > 1 && tri.p2.z > 1 && tri.p3.z > 1)
+    culledTris.forEach(tri => ThiccEngine.renderProjectedTri(frameBuffer, tri, camera))
     renderTarget.display(frameBuffer)
 }
 
