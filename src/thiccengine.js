@@ -1,4 +1,5 @@
 import { ColorRGB } from "./colors.js"
+import { Vector3 } from "./geometry.js"
 import Rasterer from "./rasterer.js"
 
 const PROJECTION_SCALE_PIXELS_PER_UNIT = 10
@@ -67,7 +68,21 @@ function renderProjectedTri (buffer, tri, camera) {
     [[tri.p1, tri.p2], [tri.p2, tri.p3], [tri.p3, tri.p1]].forEach(([start, end]) => {
         renderProjectedLine(buffer, start, end, camera, tri.color)
     })
-    renderProjectedPoint(buffer, tri.getCenter(), camera, ColorRGB.WHITE)
+    renderProjectedNormal(buffer, tri, camera)
+}
+
+function renderProjectedNormal (buffer, tri, camera) {
+    const triCenter = tri.getCenter()
+    const triNormal = tri.getNormal()
+    const mag = triNormal.getMagnitude()
+    const unitNormal = triNormal.getUnitized()
+    renderProjectedLine(
+        buffer,
+        triCenter,
+        unitNormal.getTranslated(triCenter), // tri.getNormal().getUnitized().getTranslated(triCenter),
+        camera,
+        ColorRGB.WHITE
+    )
 }
 
 export default {
