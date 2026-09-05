@@ -71,7 +71,8 @@ function renderMainView (tris, camera, frameBuffer, renderTarget) {
     })
     const trisInFrustum = viewTris.filter(tri => tri.p1.z > 1 && tri.p2.z > 1 && tri.p3.z > 1)
     const trisBackfaceCulled = trisInFrustum.filter(tri => {
-        return tri.getUnitNormal().getAngleWith(Vector3.Z) > Vector3.ANGLE_90
+        // NB. tri.getCenter() is a shortcut because camera is at origin
+        return tri.getCenter().getAngleWith(tri.getUnitNormal()) > Vector3.ANGLE_90
     })
     trisBackfaceCulled.forEach(tri => ThiccEngine.renderProjectedTri(frameBuffer, tri, camera))
     renderTarget.display(frameBuffer)
