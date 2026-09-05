@@ -73,13 +73,10 @@ function renderProjectedTri (buffer, tri, camera) {
 
 function renderProjectedNormal (buffer, tri, camera) {
     const triCenter = tri.getCenter()
-    const triNormal = tri.getNormal()
-    const mag = triNormal.getMagnitude()
-    const unitNormal = triNormal.getUnitized()
     renderProjectedLine(
         buffer,
         triCenter,
-        unitNormal.getTranslated(triCenter), // tri.getNormal().getUnitized().getTranslated(triCenter),
+        tri.getUnitNormal().getTranslated(triCenter),
         camera,
         ColorRGB.WHITE
     )

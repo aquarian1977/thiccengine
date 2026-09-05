@@ -21,11 +21,11 @@ class Vector3 {
         )
     }
 
-    getAngle (vector) { // Angle between this and other vector between 0 and Math.PI
+    getAngleWith (vector) { // Angle between this and other vector between 0 and Math.PI
         const dotProduct = this.getDotProduct(vector)
         const magThis = this.getMagnitude()
         const magVector = vector.getMagnitude()
-        return Math.cosh(dotProduct/(magThis * magVector))
+        return Math.acos(dotProduct/(magThis * magVector))
     }
 
     getCrossProduct (vector) {
@@ -123,6 +123,10 @@ class Tri {
         const a = this.p1.getVectorTo(this.p2)
         const b = this.p1.getVectorTo(this.p3)
         return a.getCrossProduct(b)
+    }
+
+    getUnitNormal () {
+        return this.getNormal().getUnitized()
     }
 
     getTranslated (translation) {
