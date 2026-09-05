@@ -3,7 +3,7 @@ import RenderTarget from "./render-target.js"
 import ThiccEngine from "./thiccengine.js"
 import {ColorRGB} from "./colors.js"
 import {Vector3} from "./geometry.js"
-import {Camera, Quad, Cube} from "./objects.js"
+import {Camera, Oblong, Cube} from "./objects.js"
 
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
@@ -26,7 +26,7 @@ function init () {
     let camera = new Camera(new Vector3(2, 1, 14), Vector3.ANGLE_DEGREE * 190, Vector3.ANGLE_DEGREE * 110)
     let angleTicker = 0
     const scene = [
-        new Quad(10, 2, new Vector3(0, 1, 11), COLOR_LIME),
+        new Oblong(10, 2, 1, new Vector3(0, 1, 11.5), COLOR_LIME),
 
         new Cube(1.5, new Vector3(0, 0.75, 9.5), COLOR_FUCHSIA),
 

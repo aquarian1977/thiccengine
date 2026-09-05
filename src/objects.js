@@ -96,17 +96,22 @@ class Quad {
     }
 }
 
-class Cube {
-    constructor (dimension, origin = Vector3.ORIGIN, color = ColorRGB.WHITE) {
-        const displacement = new Vector3(0, 0, -dimension/2)
-        const faceQuad = new Quad(dimension, dimension, displacement, color) // Pull it forward in -Z
+class Oblong {
+    constructor (width, height, depth, origin = Vector3.ORIGIN, color = ColorRGB.WHITE) {
+        // Pull each quad forward toward camera then flip into place
+        const frontQuad = new Quad(width, height, Vector3.Z.getScaled(-depth / 2), color)
+        const backQuad = new Quad(width, height, Vector3.Z.getScaled(-depth / 2), color)
+        const leftQuad = new Quad(depth, height, Vector3.Z.getScaled(-width / 2), color)
+        const rightQuad = new Quad(depth, height, Vector3.Z.getScaled(-width / 2), color)
+        const topQuad = new Quad(width, depth, Vector3.Z.getScaled(-height / 2), color)
+        const bottomQuad = new Quad(width, depth, Vector3.Z.getScaled(-height / 2), color)
         const quads = [
-            faceQuad.getRotatedAboutY(Vector3.ANGLE_180), // Back
-            faceQuad.getRotatedAboutY(Vector3.ANGLE_270), // Right
-            faceQuad, // Front
-            faceQuad.getRotatedAboutY(Vector3.ANGLE_90), // Left
-            faceQuad.getRotatedAboutX(Vector3.ANGLE_90), // Top
-            faceQuad.getRotatedAboutX(Vector3.ANGLE_270) // Bottom
+            frontQuad.getRotatedAboutY(Vector3.ANGLE_180),
+            backQuad,
+            leftQuad.getRotatedAboutY(Vector3.ANGLE_90),
+            rightQuad.getRotatedAboutY(Vector3.ANGLE_270),
+            topQuad.getRotatedAboutX(Vector3.ANGLE_90),
+            bottomQuad.getRotatedAboutX(Vector3.ANGLE_270)
         ]
         const rawTris = quads.reduce((accum, quad) => accum.concat(quad.getTris()), [])
         this.tris = rawTris.map(tri => tri.getTranslated(origin))
@@ -117,4 +122,10 @@ class Cube {
     }
 }
 
-export {Camera, Quad, Cube}
+class Cube extends Oblong {
+    constructor (dimension, origin = Vector3.ORIGIN, color = ColorRGB.WHITE) {
+        super(dimension, dimension, dimension, origin, color)
+    }
+}
+
+export {Camera, Quad, Oblong, Cube}
