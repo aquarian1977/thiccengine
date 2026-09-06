@@ -1,8 +1,9 @@
 import { ColorRGB } from "./colors.js"
-import { Vector3 } from "./geometry.js"
+import { Vector3, Tri } from "./geometry.js"
 import Rasterer from "./rasterer.js"
 
 const PROJECTION_SCALE_PIXELS_PER_UNIT = 10
+const NORMAL_LENGTH_UNITS = 0.25
 
 function renderBackground (buffer, color) {
     Rasterer.rasterFill(buffer, color)
@@ -76,10 +77,53 @@ function renderProjectedNormal (buffer, tri, camera) {
     renderProjectedLine(
         buffer,
         triCenter,
-        tri.getUnitNormal().getTranslated(triCenter),
+        tri.getUnitNormal().getScaled(NORMAL_LENGTH_UNITS).getTranslated(triCenter),
         camera,
         ColorRGB.WHITE
     )
+}
+
+function getSubdividedByPlane (tri, planeOrigin, planeNormal) {
+    const points = [tri.p1, tri.p2, tri.p3]
+    const pointsInFront = points.filter(point =>
+        getAngleToPlane(point, planeOrigin, planeNormal) < Vector3.ANGLE_90
+    )
+    const pointsBehind = points.filter(point =>
+        getAngleToPlane(point, planeOrigin, planeNormal) > Vector3.ANGLE_90
+    )
+
+    if (pointsInFront.length == 3) {
+        return [tri]
+    } else if (pointsInFront.length == 2 && pointsBehind.length == 1) {
+        const pf1 = pointsInFront[0], pf2 = pointsInFront[1], pb = pointsBehind[0]
+        const p1Intersection = getIntersectionPoint(pf1, pb, planeOrigin, planeNormal)
+        const p2Intersection = getIntersectionPoint(pf2, pb, planeOrigin, planeNormal)
+        return [
+            new Tri(pf1, p1Intersection, p2Intersection, tri.color),
+            new Tri(p2Intersection, pf2, pf1, tri.color)
+        ]
+    } else if (pointsInFront.length == 1 && pointsBehind.length == 2) {
+        const pf = pointsInFront[0], pb1 = pointsBehind[0], pb2 = pointsBehind[1]
+        const p1Intersection = getIntersectionPoint(pf, pb1, planeOrigin, planeNormal)
+        const p2Intersection = getIntersectionPoint(pf, pb2, planeOrigin, planeNormal)
+        return [
+            new Tri(pf, p1Intersection, p2Intersection, tri.color)
+        ]
+    } else {
+        return []
+    }
+}
+
+function getAngleToPlane (vector, planeOrigin, planeNormal) {
+    return planeNormal.getAngleWith(planeOrigin.getVectorTo(vector))
+}
+
+function getIntersectionPoint (start, end, planeOrigin, planeNormal) {
+    const edge = start.getVectorTo(end)
+    const dotStart = planeNormal.getDotProduct(start.getVectorTo(planeOrigin))
+    const dotEnd = planeNormal.getDotProduct(end.getVectorTo(planeOrigin))
+    const intersectionFactor = dotStart / (dotStart - dotEnd)
+    return start.getTranslated(edge.getScaled(intersectionFactor))
 }
 
 export default {
@@ -90,5 +134,7 @@ export default {
     renderTri,
     renderProjectedPoint,
     renderProjectedLine,
-    renderProjectedTri
+    renderProjectedTri,
+    getAngleToPlane,
+    getSubdividedByPlane
 }

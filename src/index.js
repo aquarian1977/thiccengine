@@ -3,7 +3,7 @@ import RenderTarget from "./render-target.js"
 import ThiccEngine from "./thiccengine.js"
 import {ColorRGB} from "./colors.js"
 import {Vector3} from "./geometry.js"
-import {Camera, Oblong, Cube} from "./objects.js"
+import {Camera, Oblong, Cube, Quad} from "./objects.js"
 
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
@@ -23,7 +23,7 @@ function init () {
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
 
-    let camera = new Camera(new Vector3(2, 1, 14), Vector3.ANGLE_DEGREE * 190, Vector3.ANGLE_DEGREE * 110)
+    let camera = new Camera(new Vector3(2, 1, 14), Vector3.ANGLE_DEGREE * 260, Vector3.ANGLE_DEGREE * 110)
     let angleTicker = 0
     const scene = [
         new Oblong(10, 2, 1, new Vector3(0, 1, 11.5), COLOR_LIME),
@@ -45,36 +45,38 @@ function init () {
     }, [])
 
     window.setInterval(() => {
-        renderOverheadView(sceneTris, camera, overheadFrameBuffer, overheadRenderTarget)
-        renderMainView(sceneTris, camera, mainFrameBuffer, mainRenderTarget)
+        const screenTris = getScreenTris(sceneTris, camera)
+        renderOverheadView(screenTris, overheadFrameBuffer, overheadRenderTarget)
+        renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget)
         angleTicker = (angleTicker + ANGLE_INCREMENT_PER_FRAME) % (2 * Math.PI)
         camera = (camera.getRotatedAboutY(Math.cos(angleTicker) * Vector3.ANGLE_45 * ANGLE_INCREMENT_PER_FRAME))
     }, (1000/TARGET_FPS))
 }
 
-function renderOverheadView (tris, camera, frameBuffer, renderTarget) {
-    const sceneTris = tris.concat(camera.getTris())
-    const viewTris = sceneTris.map(tri => {
+function getScreenTris (tris, camera) {
+    const viewTris = tris.map(tri => {
         return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
     })
-    const overheadTris = viewTris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
+    const trisBackfaceCulled = viewTris.filter(tri => { // getCenter() is a shortcut because camera is at origin in view space
+        return tri.getCenter().getAngleWith(tri.getUnitNormal()) > Vector3.ANGLE_90
+    })
+    const subdividedTris = trisBackfaceCulled.reduce((accum, tri) => { // NB. Frustum plane is at Z > 0 pointing into Z
+        return accum.concat(ThiccEngine.getSubdividedByPlane(tri, new Vector3(0, 0, 0.5), Vector3.Z))
+    }, [])
+    return subdividedTris
+}
+
+function renderOverheadView (tris, frameBuffer, renderTarget) {
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     ThiccEngine.renderAxes(frameBuffer, COLOR_DARK_GREY)
+    const overheadTris = tris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
     renderTarget.display(frameBuffer)
 }
 
 function renderMainView (tris, camera, frameBuffer, renderTarget) {
     ThiccEngine.renderWorldBackground(frameBuffer, COLOR_SKY_BLUE, COLOR_SAND_BROWN)
-    const viewTris = tris.map(tri => {
-        return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
-    })
-    const trisInFrustum = viewTris.filter(tri => tri.p1.z > 1 && tri.p2.z > 1 && tri.p3.z > 1)
-    const trisBackfaceCulled = trisInFrustum.filter(tri => {
-        // NB. tri.getCenter() is a shortcut because camera is at origin
-        return tri.getCenter().getAngleWith(tri.getUnitNormal()) > Vector3.ANGLE_90
-    })
-    trisBackfaceCulled.forEach(tri => ThiccEngine.renderProjectedTri(frameBuffer, tri, camera))
+    tris.forEach(tri => ThiccEngine.renderProjectedTri(frameBuffer, tri, camera))
     renderTarget.display(frameBuffer)
 }
 
