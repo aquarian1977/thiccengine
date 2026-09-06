@@ -89,7 +89,7 @@ function getSubdividedByPlane (tri, planeOrigin, planeNormal) {
         getAngleToPlane(point, planeOrigin, planeNormal) < Vector3.ANGLE_90
     )
     const pointsBehind = points.filter(point =>
-        getAngleToPlane(point, planeOrigin, planeNormal) > Vector3.ANGLE_90
+        getAngleToPlane(point, planeOrigin, planeNormal) >= Vector3.ANGLE_90
     )
 
     if (pointsInFront.length == 3) {
@@ -109,7 +109,7 @@ function getSubdividedByPlane (tri, planeOrigin, planeNormal) {
         return [
             new Tri(pf, p1Intersection, p2Intersection, tri.color)
         ]
-    } else {
+    } else { // Cull if behind plane
         return []
     }
 }

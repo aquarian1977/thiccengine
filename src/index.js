@@ -44,13 +44,14 @@ function init () {
         return accum.concat(sceneObject.getTris())
     }, [])
 
-    window.setInterval(() => {
+    const renderInterval = window.setInterval(() => {
         const screenTris = getScreenTris(sceneTris, camera)
         renderOverheadView(screenTris, overheadFrameBuffer, overheadRenderTarget)
         renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget)
         angleTicker = (angleTicker + ANGLE_INCREMENT_PER_FRAME) % (2 * Math.PI)
         camera = (camera.getRotatedAboutY(Math.cos(angleTicker) * Vector3.ANGLE_45 * ANGLE_INCREMENT_PER_FRAME))
     }, (1000/TARGET_FPS))
+    window.addEventListener("error", () => window.clearInterval(renderInterval)) // Stop loop on unhandled exception
 }
 
 function getScreenTris (tris, camera) {
@@ -63,7 +64,11 @@ function getScreenTris (tris, camera) {
     const subdividedTris = trisBackfaceCulled.reduce((accum, tri) => { // NB. Frustum plane is at Z > 0 pointing into Z
         return accum.concat(ThiccEngine.getSubdividedByPlane(tri, new Vector3(0, 0, 0.5), Vector3.Z))
     }, [])
-    return subdividedTris
+    const cameraTris = camera.getTris().map(tri => {
+        return tri.getRotatedAboutY(camera.getSceneAngle()).getTranslated(camera.getSceneTranslation())
+    })
+    const trisWithCamera = subdividedTris.concat(cameraTris)
+    return trisWithCamera
 }
 
 function renderOverheadView (tris, frameBuffer, renderTarget) {
@@ -80,4 +85,4 @@ function renderMainView (tris, camera, frameBuffer, renderTarget) {
     renderTarget.display(frameBuffer)
 }
 
-document.addEventListener("DOMContentLoaded", init)
+window.addEventListener("DOMContentLoaded", init)
