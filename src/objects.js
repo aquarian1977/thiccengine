@@ -2,34 +2,57 @@ import {ColorRGB} from "./colors.js"
 import {Vector3, Tri} from "./geometry.js"
 
 class Camera {
-    constructor (position, angle = 0, fov = Vector3.ANGLE_90) {
+    constructor (position, angle = 0, fov = Vector3.ANGLE_90, aspectRatio = (16 / 9)) {
         this.position = position
         this.angle = angle % (2 * Math.PI)
         this.fov = (fov && fov < Vector3.ANGLE_180) ? fov : Vector3.ANGLE_90
+        this.aspectRatio = aspectRatio
+
         const leftOffset = -Math.tan(this.fov / 2)
         const rightOffset = Math.tan(this.fov / 2)
+        const topOffset = Math.tan(this.fov / 2) / aspectRatio
+        const bottomOffset = -Math.tan(this.fov / 2) / aspectRatio
         const rawTris = [
-            new Tri(
-                position,
-                position.getTranslated(new Vector3(leftOffset, 0, 1)),
-                position.getTranslated(new Vector3(rightOffset, 0, 1)),
+            new Tri( // Left. Clockwise winding so normal is inward.
+                Vector3.ORIGIN,
+                new Vector3(leftOffset, topOffset, 1),
+                new Vector3(leftOffset, bottomOffset, 1),
+                ColorRGB.GREEN
+            ),
+            new Tri( // Right
+                Vector3.ORIGIN,
+                new Vector3(rightOffset, bottomOffset, 1),
+                new Vector3(rightOffset, topOffset, 1),
+                ColorRGB.GREEN
+            ),
+            new Tri( // Top
+                Vector3.ORIGIN,
+                new Vector3(rightOffset, topOffset, 1),
+                new Vector3(leftOffset, topOffset, 1),
+                ColorRGB.GREEN
+            ),
+            new Tri( //
+                Vector3.ORIGIN,
+                new Vector3(leftOffset, bottomOffset, 1),
+                new Vector3(rightOffset, bottomOffset, 1),
                 ColorRGB.GREEN
             )
         ]
-        this.tris = rawTris.map(tri => tri.getRotatedAboutY(angle))
+        this.tris = rawTris.map(tri => tri.getTranslated(position).getRotatedAboutY(angle))
     }
 
     getTranslated (translation = Vector3.ORIGIN) {
         return new Camera(
             this.position.getTranslated(translation),
             this.angle,
-            this.fov
+            this.fov,
+            this.aspectRatio
         )
     }
 
     getRotatedAboutY (angle) { // TODO: This rotates about the position rather than about itself
         return new Camera(
-            this.position, (this.angle + angle) % (2 * Math.PI), this.fov
+            this.position, (this.angle + angle) % (2 * Math.PI), this.fov, this.aspectRatio
         )
     }
 

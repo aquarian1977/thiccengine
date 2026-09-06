@@ -2,7 +2,7 @@ import { ColorRGB } from "./colors.js"
 import { Vector3, Tri } from "./geometry.js"
 import Rasterer from "./rasterer.js"
 
-const PROJECTION_SCALE_PIXELS_PER_UNIT = 10
+const PROJECTION_SCALE_PIXELS_PER_UNIT = 16
 const NORMAL_LENGTH_UNITS = 0.25
 
 function renderBackground (buffer, color) {
