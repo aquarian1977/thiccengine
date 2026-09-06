@@ -24,7 +24,7 @@ function init () {
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
 
     let camera = new Camera(
-        new Vector3(2, 1, 14),
+        new Vector3(2, 1, 13),
         Vector3.ANGLE_DEGREE * 260, 
         Vector3.ANGLE_DEGREE * 110,
         FRAME_WIDTH_PIXELS / FRAME_HEIGHT_PIXELS
@@ -66,12 +66,19 @@ function getScreenTris (tris, camera) {
     const trisBackfaceCulled = viewTris.filter(tri => { // getCenter() is a shortcut because camera is at origin in view space
         return tri.getCenter().getAngleWith(tri.getUnitNormal()) > Vector3.ANGLE_90
     })
-    const subdividedTris = trisBackfaceCulled.reduce((accum, tri) => { // NB. Frustum plane is at Z > 0 pointing into Z
-        return accum.concat(ThiccEngine.getSubdividedByPlane(tri, new Vector3(0, 0, 0.5), Vector3.Z))
-    }, [])
+
     const cameraTris = camera.getTris().map(tri => {
         return tri.getRotatedAboutY(camera.getSceneAngle()).getTranslated(camera.getSceneTranslation())
     })
+
+    const subdividedTris = cameraTris.reduce((tris, frustumPlane) => { // Each camera tri is a frustum plane
+        return tris.reduce((accum, tri) => { // Pass on the new subdivided list for each plane
+            return accum.concat(
+                ThiccEngine.getSubdividedByPlane(tri, frustumPlane.p1, frustumPlane.getUnitNormal())
+            )
+        }, [])
+    }, trisBackfaceCulled) // Feed in the tris
+
     const trisWithCamera = subdividedTris.concat(cameraTris)
     return trisWithCamera
 }
@@ -79,9 +86,7 @@ function getScreenTris (tris, camera) {
 function renderInspectorView (tris, frameBuffer, renderTarget) {
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     ThiccEngine.renderAxes(frameBuffer, COLOR_DARK_GREY)
-    const overheadTris = tris.map(tri => 
-        tri.getRotatedAboutY(-Vector3.ANGLE_DEGREE * 30).getRotatedAboutX(-Vector3.ANGLE_DEGREE * 30)
-    )
+    const overheadTris = tris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_DEGREE * 30))
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
     renderTarget.display(frameBuffer)
 }
