@@ -166,4 +166,15 @@ class Tri {
     }
 }
 
-export {Vector3, Tri}
+class TriSimple extends Tri {
+    constructor (x1, y1, z1, x2, y2, z2, x3, y3, z3, red, green, blue) {
+        super(
+            new Vector3(x1, y1, z1),
+            new Vector3(x2, y2, z2),
+            new Vector3(x3, y3, z3),
+            new ColorRGB(red, green, blue)
+        )
+    }
+}
+
+export {Vector3, Tri, TriSimple}
