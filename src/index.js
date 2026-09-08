@@ -59,7 +59,12 @@ function getScreenTris (tris, camera) {
         }, [])
     }, trisBackfaceCulled) // Feed in the tris
 
-    const trisWithCamera = subdividedTris.concat(cameraTris)
+    const trisZOrdered = subdividedTris.sort((a, b) => {
+        // Sort so the ones at the back (greatest z) come first
+        return (b.p1.z + b.p2.z + b.p3.z)/3 - (a.p1.z + a.p2.z + a.p3.z)/3
+    })
+
+    const trisWithCamera = trisZOrdered.concat(cameraTris)
     return trisWithCamera
 }
 
