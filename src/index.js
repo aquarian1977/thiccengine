@@ -9,7 +9,9 @@ import e1m1Scene from "./e1m1-scene.js"
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
-const ANGLE_INCREMENT_PER_FRAME = Math.PI * (1 / 180)
+const TRANSLATION_PER_FRAME = 0.1
+const ROTATION_PER_FRAME = Math.PI * (2.5 / 180)
+const RENDER_CUTOFF_DISTANCE = 20
 const COLOR_MID_GREY = new ColorRGB(127, 127, 127)
 const COLOR_DARK_GREY = new ColorRGB(110, 110, 110)
 const COLOR_SKY_BLUE = new ColorRGB(67, 126, 180)
@@ -20,6 +22,7 @@ function init () {
     const overheadFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const keysByPressedStatus = {}
 
     let camera = new Camera(
         new Vector3(-21, 1, 72),
@@ -29,11 +32,42 @@ function init () {
     )
 
     const renderInterval = window.setInterval(() => {
+        camera = getTransformedCamera(keysByPressedStatus, camera)
         const screenTris = getScreenTris(e1m1Scene, camera)
         renderInspectorView(screenTris, overheadFrameBuffer, overheadRenderTarget)
         renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget)
     }, (1000/TARGET_FPS))
+    window.addEventListener("keydown", (event) => handleKeyPress(keysByPressedStatus, event))
+    window.addEventListener("keyup", (event) => handleKeyUp(keysByPressedStatus, event))
     window.addEventListener("error", () => window.clearInterval(renderInterval)) // Stop loop on unhandled exception
+}
+
+function handleKeyPress (keysByPressedStatus, event) {
+    keysByPressedStatus[event.key] = true
+}
+
+function handleKeyUp (keysByPressedStatus, event) {
+    keysByPressedStatus[event.key] = false
+}
+
+function getTransformedCamera (keysByPressedStatus, camera) {
+    const forwardTranslation = (
+        keysByPressedStatus.w ? TRANSLATION_PER_FRAME : (
+            keysByPressedStatus.s ? -TRANSLATION_PER_FRAME : 0
+    ))
+    const upTranslation = (
+        keysByPressedStatus.e ? TRANSLATION_PER_FRAME : (
+            keysByPressedStatus.q ? -TRANSLATION_PER_FRAME : 0
+    ))
+    const rotation = (
+        keysByPressedStatus.d ? ROTATION_PER_FRAME : (
+            keysByPressedStatus.a ? -ROTATION_PER_FRAME : 0
+    ))
+
+    // Move the camera along its forward direction by translation
+    const translation = (new Vector3(0, upTranslation, forwardTranslation)
+        .getRotatedAboutY(camera.angle))
+    return camera.getTranslated(translation).getRotatedAboutY(rotation)
 }
 
 function getScreenTris (tris, camera) {
@@ -41,7 +75,11 @@ function getScreenTris (tris, camera) {
         return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
     })
     const trisBeyondViewDistanceCulled = viewTris.filter(tri => {
-        return tri.p1.z <= 10 && tri.p2.z <= 10 && tri.p3.z <= 10
+        return (
+            tri.p1.z <= RENDER_CUTOFF_DISTANCE &&
+            tri.p2.z <= RENDER_CUTOFF_DISTANCE &&
+            tri.p3.z <= RENDER_CUTOFF_DISTANCE
+        )
     })
     const trisBackfaceCulled = trisBeyondViewDistanceCulled.filter(tri => { // getCenter() is a shortcut because camera is at origin in view space
         return tri.getCenter().getAngleWith(tri.getUnitNormal()) > Vector3.ANGLE_90
@@ -64,8 +102,7 @@ function getScreenTris (tris, camera) {
         return (b.p1.z + b.p2.z + b.p3.z)/3 - (a.p1.z + a.p2.z + a.p3.z)/3
     })
 
-    const trisWithCamera = trisZOrdered.concat(cameraTris)
-    return trisWithCamera
+    return trisZOrdered
 }
 
 function renderInspectorView (tris, frameBuffer, renderTarget) {
@@ -77,7 +114,7 @@ function renderInspectorView (tris, frameBuffer, renderTarget) {
 }
 
 function renderMainView (tris, camera, frameBuffer, renderTarget) {
-    ThiccEngine.renderWorldBackground(frameBuffer, COLOR_SKY_BLUE, COLOR_SAND_BROWN)
+    ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
     tris.forEach(tri => ThiccEngine.renderProjectedTri(frameBuffer, tri, camera))
     renderTarget.display(frameBuffer)
 }
