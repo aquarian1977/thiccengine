@@ -115,7 +115,7 @@ function renderInspectorView (tris, frameBuffer, renderTarget) {
 
 function renderMainView (tris, camera, frameBuffer, renderTarget) {
     ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
-    tris.forEach(tri => ThiccEngine.renderProjectedTri(frameBuffer, tri, camera))
+    tris.forEach(tri => ThiccEngine.renderProjectedFilledTri(frameBuffer, tri, camera))
     renderTarget.display(frameBuffer)
 }
 

@@ -72,6 +72,70 @@ function renderProjectedTri (buffer, tri, camera) {
     renderProjectedNormal(buffer, tri, camera)
 }
 
+function renderProjectedFilledTri (buffer, tri, camera) {
+    const anglePerPixel = buffer.width / camera.fov
+    const projectedTri = new Tri(
+        new Vector3(
+            (tri.p1.x/tri.p1.z) * anglePerPixel + buffer.centerX,
+            -(tri.p1.y/tri.p1.z) * anglePerPixel + buffer.centerY,
+            0
+        ),
+        new Vector3(
+            (tri.p2.x/tri.p2.z) * anglePerPixel + buffer.centerX,
+            -(tri.p2.y/tri.p2.z) * anglePerPixel + buffer.centerY,
+            0
+        ),
+        new Vector3(
+            (tri.p3.x/tri.p3.z) * anglePerPixel + buffer.centerX,
+            -(tri.p3.y/tri.p3.z) * anglePerPixel + buffer.centerY,
+            0
+        )
+    )
+
+    const leftMostX = Math.min(projectedTri.p1.x, projectedTri.p2.x, projectedTri.p3.x)
+    const rightMostX = Math.max(projectedTri.p1.x, projectedTri.p2.x, projectedTri.p3.x)
+    const topMostY = Math.min(projectedTri.p1.y, projectedTri.p2.y, projectedTri.p3.y)
+    const bottomMostY = Math.max(projectedTri.p1.y, projectedTri.p2.y, projectedTri.p3.y)
+    const leftX = Math.floor(clamp(leftMostX, 0, buffer.width))
+    const rightX = Math.ceil(clamp(rightMostX, 0, buffer.width))
+    const topY = Math.floor(clamp(topMostY, 0, buffer.height))
+    const bottomY = Math.ceil(clamp(bottomMostY, 0, buffer.height))
+
+    if (leftX == 0 && rightX == 0 ||
+        leftX == buffer.width && rightX == buffer.width ||
+        topY == 0 && bottomY == 0 ||
+        topY == buffer.height && bottomY == buffer.height
+    ) {
+        return // Don't render because all off-screen
+    }
+
+    for (let y = topY; y <= bottomY; y += 1) {
+        for (let x = leftX; x <= rightX; x += 1) {
+            const sideOfEdge1 = getSideOfEdge(x, y, projectedTri.p1, projectedTri.p2)
+            const sideOfEdge2 = getSideOfEdge(x, y, projectedTri.p2, projectedTri.p3)
+            const sideOfEdge3 = getSideOfEdge(x, y, projectedTri.p3, projectedTri.p1)
+            const isInsideTri = (
+                (sideOfEdge1 > 0 && sideOfEdge2 > 0 && sideOfEdge3 > 0) ||
+                (sideOfEdge1 <= 0 && sideOfEdge2 <= 0 && sideOfEdge3 <= 0)
+            )
+            if (isInsideTri) {
+                Rasterer.rasterPixel(buffer, x, y, tri.color)
+            }
+        }
+    }
+}
+
+function clamp (value, min, max) {
+    return Math.min(Math.max(value, min), max)
+}
+
+function getSideOfEdge (x, y, edgeStart, edgeEnd) {
+    return (
+        (x - edgeEnd.x) * (edgeStart.y - edgeEnd.y) -
+        (edgeStart.x - edgeEnd.x) * (y - edgeEnd.y)
+    )
+}
+
 function renderProjectedNormal (buffer, tri, camera) {
     const triCenter = tri.getCenter()
     renderProjectedLine(
@@ -135,6 +199,7 @@ export default {
     renderProjectedPoint,
     renderProjectedLine,
     renderProjectedTri,
+    renderProjectedFilledTri,
     getAngleToPlane,
     getSubdividedByPlane
 }
