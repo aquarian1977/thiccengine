@@ -18,8 +18,8 @@ const COLOR_SKY_BLUE = new ColorRGB(67, 126, 180)
 const COLOR_SAND_BROWN = new ColorRGB(136, 112, 100)
 
 function init () {
-    const overheadRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    const overheadFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const inspectorRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const inspectorFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const keysByPressedStatus = {}
@@ -34,7 +34,7 @@ function init () {
     const renderInterval = window.setInterval(() => {
         camera = getTransformedCamera(keysByPressedStatus, camera)
         const screenTris = getScreenTris(e1m1Scene, camera)
-        renderInspectorView(screenTris, overheadFrameBuffer, overheadRenderTarget)
+        renderInspectorView(screenTris, inspectorFrameBuffer, inspectorRenderTarget)
         renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget)
     }, (1000/TARGET_FPS))
     window.addEventListener("keydown", (event) => handleKeyPress(keysByPressedStatus, event))
@@ -74,14 +74,7 @@ function getScreenTris (tris, camera) {
     const viewTris = tris.map(tri => {
         return tri.getTranslated(camera.getSceneTranslation()).getRotatedAboutY(camera.getSceneAngle())
     })
-    const trisBeyondViewDistanceCulled = viewTris.filter(tri => {
-        return (
-            tri.p1.z <= RENDER_CUTOFF_DISTANCE &&
-            tri.p2.z <= RENDER_CUTOFF_DISTANCE &&
-            tri.p3.z <= RENDER_CUTOFF_DISTANCE
-        )
-    })
-    const trisBackfaceCulled = trisBeyondViewDistanceCulled.filter(tri => { // getCenter() is a shortcut because camera is at origin in view space
+    const trisBackfaceCulled = viewTris.filter(tri => { // getCenter() is a shortcut because camera is at origin in view space
         return tri.getCenter().getAngleWith(tri.getUnitNormal()) > Vector3.ANGLE_90
     })
 
@@ -108,7 +101,7 @@ function getScreenTris (tris, camera) {
 function renderInspectorView (tris, frameBuffer, renderTarget) {
     ThiccEngine.renderBackground(frameBuffer, COLOR_MID_GREY)
     ThiccEngine.renderAxes(frameBuffer, COLOR_DARK_GREY)
-    const overheadTris = tris.map(tri => tri.getRotatedAboutX(-Vector3.ANGLE_90))
+    const overheadTris = tris.map(tri => tri.getRotatedAboutY(-Vector3.ANGLE_30).getRotatedAboutX(-Vector3.ANGLE_30))
     overheadTris.forEach(tri => ThiccEngine.renderTri(frameBuffer, tri))
     renderTarget.display(frameBuffer)
 }

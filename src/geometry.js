@@ -6,6 +6,7 @@ class Vector3 {
     static Z = new Vector3(0, 0, 1)
     static ORIGIN = new Vector3(0, 0, 0)
     static ANGLE_DEGREE = Math.PI / 180
+    static ANGLE_30 = Math.PI / 6
     static ANGLE_45 = Math.PI * 0.25
     static ANGLE_90 = Math.PI * 0.5
     static ANGLE_180 = Math.PI * 1.0
