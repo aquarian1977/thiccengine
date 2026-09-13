@@ -19,6 +19,7 @@ function init () {
     const inspectorFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    const zBuffer = new Float64Array(FRAME_WIDTH_PIXELS * FRAME_HEIGHT_PIXELS)
     const keysByPressedStatus = {}
 
     let camera = new Camera(
@@ -32,8 +33,7 @@ function init () {
         camera = getTransformedCamera(keysByPressedStatus, camera)
         const screenTris = getScreenTris(e1m1Scene, camera)
         renderInspectorView(screenTris, inspectorFrameBuffer, inspectorRenderTarget)
-        renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget)
-        window.clearInterval(renderInterval)
+        renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget, zBuffer)
     }, (1000/TARGET_FPS))
     window.addEventListener("keydown", (event) => handleKeyPress(keysByPressedStatus, event))
     window.addEventListener("keyup", (event) => handleKeyUp(keysByPressedStatus, event))
@@ -104,9 +104,10 @@ function renderInspectorView (tris, frameBuffer, renderTarget) {
     renderTarget.display(frameBuffer)
 }
 
-function renderMainView (tris, camera, frameBuffer, renderTarget) {
+function renderMainView (tris, camera, frameBuffer, renderTarget, zBuffer) {
     ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
-    tris.forEach(tri => ThiccEngine.renderProjectedFilledTri(frameBuffer, tri, camera))
+    zBuffer.fill(0)
+    tris.forEach(tri => ThiccEngine.renderProjectedFilledTri(frameBuffer, tri, camera, zBuffer))
     renderTarget.display(frameBuffer)
 }
 

@@ -72,23 +72,23 @@ function renderProjectedTri (buffer, tri, camera) {
     renderProjectedNormal(buffer, tri, camera)
 }
 
-function renderProjectedFilledTri (buffer, tri, camera) {
+function renderProjectedFilledTri (buffer, tri, camera, zBuffer) {
     const anglePerPixel = buffer.width / camera.fov
     const projectedTri = new Tri(
         new Vector3(
             (tri.p1.x/tri.p1.z) * anglePerPixel + buffer.centerX,
             -(tri.p1.y/tri.p1.z) * anglePerPixel + buffer.centerY,
-            0
+            tri.p1.z
         ),
         new Vector3(
             (tri.p2.x/tri.p2.z) * anglePerPixel + buffer.centerX,
             -(tri.p2.y/tri.p2.z) * anglePerPixel + buffer.centerY,
-            0
+            tri.p2.z
         ),
         new Vector3(
             (tri.p3.x/tri.p3.z) * anglePerPixel + buffer.centerX,
             -(tri.p3.y/tri.p3.z) * anglePerPixel + buffer.centerY,
-            0
+            tri.p3.z
         )
     )
 
@@ -119,7 +119,11 @@ function renderProjectedFilledTri (buffer, tri, camera) {
                 (sideOfEdge1 <= 0 && sideOfEdge2 <= 0 && sideOfEdge3 <= 0)
             )
             if (isInsideTri) {
-                Rasterer.rasterPixel(buffer, x, y, tri.color)
+                const z = projectedTri.getPerspectiveCorrectZFor(x, y)
+                if (zBuffer[y * buffer.width + x] < z) {
+                    Rasterer.rasterPixel(buffer, x, y, tri.color)
+                    zBuffer[y * buffer.width + x] = z
+                }
             }
         }
     }

@@ -165,6 +165,23 @@ class Tri {
             this.color
         )
     }
+
+    getPerspectiveCorrectZFor (x, y) {
+        const a = this.p1, b = this.p2, c = this.p3
+
+        const doubledArea = ( // Cross product of two main edge vectors gives doubled area
+            (b.y - c.y) * (a.x - c.x) +
+            (c.x - b.x) * (a.y - c.y)
+        )
+
+        // Use same cross product shortcut for barycentric lambdas
+        const l1 = ((b.y - c.y) * (x - c.x) + (c.x - b.x) * (y - c.y)) / doubledArea
+        const l2 = ((c.y - a.y) * (x - c.x) + (a.x - c.x) * (y - c.y)) / doubledArea
+        const l3 = 1 - l1 - l2
+
+        // To interpolate given perspective, correct lambdas via z division
+        return ((l1 / a.z) + (l2 / b.z) + (l3 / c.z))
+    }
 }
 
 class TriSimple extends Tri {
