@@ -11,11 +11,8 @@ const FRAME_HEIGHT_PIXELS = 300
 const TARGET_FPS = 30
 const TRANSLATION_PER_FRAME = 0.1
 const ROTATION_PER_FRAME = Math.PI * (2.5 / 180)
-const RENDER_CUTOFF_DISTANCE = 20
 const COLOR_MID_GREY = new ColorRGB(127, 127, 127)
 const COLOR_DARK_GREY = new ColorRGB(110, 110, 110)
-const COLOR_SKY_BLUE = new ColorRGB(67, 126, 180)
-const COLOR_SAND_BROWN = new ColorRGB(136, 112, 100)
 
 function init () {
     const inspectorRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
@@ -36,6 +33,7 @@ function init () {
         const screenTris = getScreenTris(e1m1Scene, camera)
         renderInspectorView(screenTris, inspectorFrameBuffer, inspectorRenderTarget)
         renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget)
+        window.clearInterval(renderInterval)
     }, (1000/TARGET_FPS))
     window.addEventListener("keydown", (event) => handleKeyPress(keysByPressedStatus, event))
     window.addEventListener("keyup", (event) => handleKeyUp(keysByPressedStatus, event))
@@ -90,12 +88,12 @@ function getScreenTris (tris, camera) {
         }, [])
     }, trisBackfaceCulled) // Feed in the tris
 
-    const trisZOrdered = subdividedTris.sort((a, b) => {
-        // Sort so the ones at the back (greatest z) come first
-        return (b.p1.z + b.p2.z + b.p3.z)/3 - (a.p1.z + a.p2.z + a.p3.z)/3
+    const trisDistanceOrdered = subdividedTris.sort((a, b) => {
+        // Sort so the ones at the back come first
+        return b.getCenter().getMagnitude() - a.getCenter().getMagnitude()
     })
 
-    return trisZOrdered
+    return trisDistanceOrdered
 }
 
 function renderInspectorView (tris, frameBuffer, renderTarget) {
