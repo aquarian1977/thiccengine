@@ -3,9 +3,14 @@
 A sequel to the original 2019 ThiccEngine.
 
 New features:
-  * Worse code
-  * Major inefficiencies and poor big-O performance
-  * Large amounts of repetition and boilerplate
+  * Full software renderer and rasterizer
+  * Plays Doom E1M1
+  * Handles arbitrary scenes in proprietary format
+  * Frustum culling
+  * Frustum plane subdivision
+  * Backface culling
+  * Z-Buffered rendering
+  * Flat-shaded polygons
 
 ## Running
 
