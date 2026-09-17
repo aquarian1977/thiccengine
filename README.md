@@ -24,4 +24,5 @@ Else just skip install and run
 
 ## Screenshot
 
-<img width="334" height="501" alt="ThiccEngine 2.0 Screenshot" src="https://github.com/user-attachments/assets/cc6d30e1-6335-497e-9f26-ba8005bfe41b" />
+<img width="324" height="500" alt="thiccengine-2 0-e1m1" src="https://github.com/user-attachments/assets/cbca7dde-d8cf-4e42-a90f-06b0a30cb36a" />
+
