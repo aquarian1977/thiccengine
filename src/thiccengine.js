@@ -78,17 +78,17 @@ function renderProjectedFilledTri (buffer, tri, camera, zBuffer) {
         new Vector3(
             (tri.p1.x/tri.p1.z) * anglePerPixel + buffer.centerX,
             -(tri.p1.y/tri.p1.z) * anglePerPixel + buffer.centerY,
-            tri.p1.z
+            tri.p1.z, tri.p1.u, tri.p1.v
         ),
         new Vector3(
             (tri.p2.x/tri.p2.z) * anglePerPixel + buffer.centerX,
             -(tri.p2.y/tri.p2.z) * anglePerPixel + buffer.centerY,
-            tri.p2.z
+            tri.p2.z, tri.p2.u, tri.p2.v
         ),
         new Vector3(
             (tri.p3.x/tri.p3.z) * anglePerPixel + buffer.centerX,
             -(tri.p3.y/tri.p3.z) * anglePerPixel + buffer.centerY,
-            tri.p3.z
+            tri.p3.z, tri.p3.u, tri.p3.v
         )
     )
 
@@ -122,6 +122,65 @@ function renderProjectedFilledTri (buffer, tri, camera, zBuffer) {
                 const z = projectedTri.getPerspectiveCorrectZFor(x, y)
                 if (zBuffer[y * buffer.width + x] < z) {
                     Rasterer.rasterPixel(buffer, x, y, tri.color)
+                    zBuffer[y * buffer.width + x] = z
+                }
+            }
+        }
+    }
+}
+
+function renderProjectedTexturedTri (buffer, tri, camera, zBuffer) {
+    const anglePerPixel = buffer.width / camera.fov
+    const projectedTri = new Tri(
+        new Vector3(
+            (tri.p1.x/tri.p1.z) * anglePerPixel + buffer.centerX,
+            -(tri.p1.y/tri.p1.z) * anglePerPixel + buffer.centerY,
+            tri.p1.z, tri.p1.u, tri.p1.v
+        ),
+        new Vector3(
+            (tri.p2.x/tri.p2.z) * anglePerPixel + buffer.centerX,
+            -(tri.p2.y/tri.p2.z) * anglePerPixel + buffer.centerY,
+            tri.p2.z, tri.p2.u, tri.p2.v
+        ),
+        new Vector3(
+            (tri.p3.x/tri.p3.z) * anglePerPixel + buffer.centerX,
+            -(tri.p3.y/tri.p3.z) * anglePerPixel + buffer.centerY,
+            tri.p3.z, tri.p3.u, tri.p3.v
+        ),
+        tri.color
+    )
+
+    const leftMostX = Math.min(projectedTri.p1.x, projectedTri.p2.x, projectedTri.p3.x)
+    const rightMostX = Math.max(projectedTri.p1.x, projectedTri.p2.x, projectedTri.p3.x)
+    const topMostY = Math.min(projectedTri.p1.y, projectedTri.p2.y, projectedTri.p3.y)
+    const bottomMostY = Math.max(projectedTri.p1.y, projectedTri.p2.y, projectedTri.p3.y)
+    const leftX = Math.floor(clamp(leftMostX, 0, buffer.width))
+    const rightX = Math.ceil(clamp(rightMostX, 0, buffer.width))
+    const topY = Math.floor(clamp(topMostY, 0, buffer.height))
+    const bottomY = Math.ceil(clamp(bottomMostY, 0, buffer.height))
+
+    if (leftX == 0 && rightX == 0 ||
+        leftX == buffer.width && rightX == buffer.width ||
+        topY == 0 && bottomY == 0 ||
+        topY == buffer.height && bottomY == buffer.height
+    ) {
+        return // Don't render because all off-screen
+    }
+
+    for (let y = topY; y <= bottomY; y += 1) {
+        for (let x = leftX; x <= rightX; x += 1) {
+            const sideOfEdge1 = getSideOfEdge(x, y, projectedTri.p1, projectedTri.p2)
+            const sideOfEdge2 = getSideOfEdge(x, y, projectedTri.p2, projectedTri.p3)
+            const sideOfEdge3 = getSideOfEdge(x, y, projectedTri.p3, projectedTri.p1)
+            const isInsideTri = (
+                (sideOfEdge1 > 0 && sideOfEdge2 > 0 && sideOfEdge3 > 0) ||
+                (sideOfEdge1 <= 0 && sideOfEdge2 <= 0 && sideOfEdge3 <= 0)
+            )
+            if (isInsideTri) {
+                const z = projectedTri.getPerspectiveCorrectZFor(x, y)
+                if (zBuffer[y * buffer.width + x] < z) {
+                    const color = projectedTri.getPerspectiveCorrectColorAt(x, y)
+                    Rasterer.rasterPixel(buffer, x, y, color)
                     zBuffer[y * buffer.width + x] = z
                 }
             }
@@ -204,6 +263,7 @@ export default {
     renderProjectedLine,
     renderProjectedTri,
     renderProjectedFilledTri,
+    renderProjectedTexturedTri,
     getAngleToPlane,
     getSubdividedByPlane
 }

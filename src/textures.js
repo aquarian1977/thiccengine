@@ -1,3 +1,5 @@
+import { ColorRGB } from "./colors.js"
+
 const TEXTURE_PATH = "textures/"
 const TEXTURE_EXTENSION = ".tga"
 const TARGA_COLOR_MAP_TYPE_BYTE_INDEX = 1
@@ -13,6 +15,25 @@ const TARGA_IMAGE_DATA_BYTE_INDEX = 18
 class Texture {
     constructor (name, width, height, data) {
         this.name = name, this.width = width, this.height = height, this.data = data
+    }
+
+    getColorAt (x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return ColorRGB.BLUE
+        const startIndex = (y * this.height + x) * 4
+        return new ColorRGB(
+            this.data[startIndex + 0],
+            this.data[startIndex + 1],
+            this.data[startIndex + 2],
+            this.data[startIndex + 3]
+        )
+    }
+
+    getColorAtUV (rawU, rawV) {
+        const u = rawU
+        const v = rawV
+        const x = Math.round(u * (this.width - 1))
+        const y = Math.round(v * (this.height - 1))
+        return this.getColorAt(x, y)
     }
 }
 

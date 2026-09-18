@@ -12,8 +12,8 @@ class Vector3 {
     static ANGLE_180 = Math.PI * 1.0
     static ANGLE_270 = Math.PI * 1.5
 
-    constructor (x, y, z) {
-        this.x = x, this.y = y, this.z = z
+    constructor (x, y, z, u = 0, v = 0) {
+        this.x = x, this.y = y, this.z = z, this.u = u, this.v = v
     }
 
     getDotProduct (vector) {
@@ -33,7 +33,9 @@ class Vector3 {
         return new Vector3(
             this.y * vector.z - this.z * vector.y,
             this.z * vector.x - this.x * vector.z,
-            this.x * vector.y - this.y * vector.x
+            this.x * vector.y - this.y * vector.x,
+            0,
+            0
         )
     }
 
@@ -41,13 +43,15 @@ class Vector3 {
         return new Vector3(
             this.x * scale,
             this.y * scale,
-            this.z * scale
+            this.z * scale,
+            this.u,
+            this.v
         )
     } 
 
     getInverse () {
         return new Vector3(
-            -this.x, -this.y, -this.z
+            -this.x, -this.y, -this.z, this.u, this.v
         )
     }
 
@@ -62,7 +66,9 @@ class Vector3 {
         return new Vector3(
             this.x / mag,
             this.y / mag,
-            this.z / mag
+            this.z / mag,
+            this.u,
+            this.v
         )
     }
 
@@ -70,7 +76,9 @@ class Vector3 {
         return new Vector3(
             vector.x - this.x,
             vector.y - this.y,
-            vector.z - this.z
+            vector.z - this.z,
+            this.u,
+            this.v
         )
     }
 
@@ -78,7 +86,9 @@ class Vector3 {
         return new Vector3(
             this.x + translation.x,
             this.y + translation.y,
-            this.z + translation.z
+            this.z + translation.z,
+            this.u,
+            this.v
         )
     }
 
@@ -86,7 +96,9 @@ class Vector3 {
         return new Vector3(
             this.x,
             (this.y - origin.y) * Math.cos(angle) - (this.z - origin.z) * Math.sin(angle) + origin.y,
-            (this.z - origin.z) * Math.cos(angle) + (this.y - origin.y) * Math.sin(angle) + origin.z
+            (this.z - origin.z) * Math.cos(angle) + (this.y - origin.y) * Math.sin(angle) + origin.z,
+            this.u,
+            this.v
         )
     }
 
@@ -95,6 +107,8 @@ class Vector3 {
             (this.x - origin.x) * Math.cos(angle) + (this.z - origin.z) * Math.sin(angle) + origin.x,
             this.y,
             (this.z - origin.z) * Math.cos(angle) - (this.x - origin.x) * Math.sin(angle) + origin.z,
+            this.u,
+            this.v
         )
     }
 
@@ -102,7 +116,9 @@ class Vector3 {
         return new Vector3(
             (this.x - origin.x) * Math.cos(angle) - (this.y - origin.y) * Math.sin(angle) + origin.x,
             (this.y - origin.y) * Math.cos(angle) + (this.x - origin.x) * Math.sin(angle) + origin.y,
-            this.z
+            this.z,
+            this.u,
+            this.v
         )
     }
 }
@@ -166,7 +182,7 @@ class Tri {
         )
     }
 
-    getPerspectiveCorrectZFor (x, y) {
+    getBarycentricCoordsFor (x, y) {
         const a = this.p1, b = this.p2, c = this.p3
 
         const doubledArea = ( // Cross product of two main edge vectors gives doubled area
@@ -179,8 +195,31 @@ class Tri {
         const l2 = ((c.y - a.y) * (x - c.x) + (a.x - c.x) * (y - c.y)) / doubledArea
         const l3 = 1 - l1 - l2
 
+        return [l1, l2, l3] // May wish to divide by p1/p2/p3 z for each to do perspective correction?
+    }
+
+    getPerspectiveCorrectZFor (x, y) {
+        const [l1, l2, l3] = this.getBarycentricCoordsFor(x, y)
         // To interpolate given perspective, correct lambdas via z division
-        return ((l1 / a.z) + (l2 / b.z) + (l3 / c.z))
+        return ((l1 / this.p1.z) + (l2 / this.p2.z) + (l3 / this.p3.z))
+    }
+
+    getPerspectiveCorrectColorAt (x, y) {
+        const [l1, l2, l3] = this.getBarycentricCoordsFor(x, y)
+        const p1uz = this.p1.u/this.p1.z
+        const p2uz = this.p2.u/this.p2.z
+        const p3uz = this.p3.u/this.p3.z
+        const p1vz = this.p1.v/this.p1.z
+        const p2vz = this.p2.v/this.p2.z
+        const p3vz = this.p3.v/this.p3.z
+        const p1iz = 1/this.p1.z
+        const p2iz = 1/this.p2.z
+        const p3iz = 1/this.p3.z
+        const uz = p1uz * l1 + p2uz * l2 + p3uz * l3
+        const vz = p1vz * l1 + p2vz * l2 + p3vz * l3
+        const iz = p1iz * l1 + p2iz * l2 + p3iz * l3
+        const z = 1 / iz
+        return this.color.getColorAtUV(uz * z, vz * z)
     }
 }
 

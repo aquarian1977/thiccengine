@@ -2,9 +2,9 @@ import FrameBuffer from "./frame-buffer.js"
 import RenderTarget from "./render-target.js"
 import ThiccEngine from "./thiccengine.js"
 import {ColorRGB} from "./colors.js"
-import {Vector3} from "./geometry.js"
+import {Vector3, Tri} from "./geometry.js"
 import {Camera} from "./objects.js"
-import e1m1Scene from "./e1m1-scene.js"
+import {loadTextureAsync} from "./textures.js"
 
 const FRAME_WIDTH_PIXELS = 400
 const FRAME_HEIGHT_PIXELS = 300
@@ -14,26 +14,41 @@ const ROTATION_PER_FRAME = Math.PI * (2.5 / 180)
 const COLOR_MID_GREY = new ColorRGB(127, 127, 127)
 const COLOR_DARK_GREY = new ColorRGB(110, 110, 110)
 
-function init () {
-    const inspectorRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
-    const inspectorFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+async function init () {
+    // const inspectorRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
+    // const inspectorFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainRenderTarget = new RenderTarget.Web(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const mainFrameBuffer = new FrameBuffer(FRAME_WIDTH_PIXELS, FRAME_HEIGHT_PIXELS)
     const zBuffer = new Float64Array(FRAME_WIDTH_PIXELS * FRAME_HEIGHT_PIXELS)
     const keysByPressedStatus = {}
+    const doorTexture = await loadTextureAsync("BIGDOOR2")
+    const scene = [
+        new Tri(
+            new Vector3(0, 0, 0, 0, 0),
+            new Vector3(1, 0, 0, 1, 0),
+            new Vector3(0, -1, 0, 0, 1),
+            doorTexture
+        ),
+        new Tri(
+            new Vector3(1, -1, 0, 1, 1),
+            new Vector3(0, -1, 0, 0, 1),
+            new Vector3(1, 0, 0, 1, 0),
+            doorTexture
+        )
+    ]
 
     let camera = new Camera(
-        new Vector3(-21, 1, 72),
-        Vector3.ANGLE_180,
+        new Vector3(0.5, -0.5, -2),
+        0,
         Vector3.ANGLE_DEGREE * 110,
         FRAME_WIDTH_PIXELS / FRAME_HEIGHT_PIXELS
     )
 
     const renderInterval = window.setInterval(() => {
         camera = getTransformedCamera(keysByPressedStatus, camera)
-        const screenTris = getScreenTris(e1m1Scene, camera)
-        renderInspectorView(screenTris, inspectorFrameBuffer, inspectorRenderTarget)
+        const screenTris = getScreenTris(scene, camera)
         renderMainView(screenTris, camera, mainFrameBuffer, mainRenderTarget, zBuffer)
+        // window.clearInterval(renderInterval)
     }, (1000/TARGET_FPS))
     window.addEventListener("keydown", (event) => handleKeyPress(keysByPressedStatus, event))
     window.addEventListener("keyup", (event) => handleKeyUp(keysByPressedStatus, event))
@@ -107,7 +122,7 @@ function renderInspectorView (tris, frameBuffer, renderTarget) {
 function renderMainView (tris, camera, frameBuffer, renderTarget, zBuffer) {
     ThiccEngine.renderBackground(frameBuffer, ColorRGB.BLACK)
     zBuffer.fill(0)
-    tris.forEach(tri => ThiccEngine.renderProjectedFilledTri(frameBuffer, tri, camera, zBuffer))
+    tris.forEach(tri => ThiccEngine.renderProjectedTexturedTri(frameBuffer, tri, camera, zBuffer))
     renderTarget.display(frameBuffer)
 }
 
